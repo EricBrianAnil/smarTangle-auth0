@@ -86,13 +86,22 @@ class TransactionHistory(models.Model):
     units = models.IntegerField()
     dateTime = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        verbose_name_plural = "Transaction History"
+
 
 class TruckDetails(models.Model):
     truck_id = models.CharField(max_length=10, primary_key=True)
     truck_owner = models.CharField(max_length=25)
+
+    class Meta:
+        verbose_name_plural = "Truck Details"
 
 
 class TravelHistory(models.Model):
     truck_id = models.ForeignKey(TruckDetails, on_delete=models.PROTECT)
     batch_id = models.ForeignKey(RawMaterialBatches, on_delete=models.PROTECT)
     destStore_id = models.ForeignKey(StoreDetails, on_delete=models.PROTECT)
+
+    class Meta:
+        verbose_name_plural = "Travel History"

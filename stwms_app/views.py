@@ -8,6 +8,17 @@ from .serializers import UserSerializer
 from .forms import SignUpForm
 from .models import StoreDetails, StoreInventory, RawMaterials, TransactionHistory
 
+# InFluxDb
+from influxdb_client import InfluxDBClient, Point, WritePrecision
+from influxdb_client.client.write_api import SYNCHRONOUS
+
+token = "NCAxa9xp-pPyTDYnCrkKowLETS_RSKY2gsTajAh9GKDmMv9NOTQPyYa6DsuBHEMGgeMDm6mUy9qBK5bUDKuiLQ=="
+org = "1faff460d4557f87"
+bucket = "05dd07784fa8d000"
+client = InfluxDBClient(url="https://us-central1-1.gcp.cloud2.influxdata.com", token=token)
+write_api = client.write_api(write_options=SYNCHRONOUS)
+
+
 # Create your views here.
 
 
@@ -42,8 +53,8 @@ def store_details(request):
     if request.method == "POST":
         store_id = request.POST['store_id']
         raw_material_id = request.POST['rawMaterial_id']
-        units = request.POST['rawMaterial_id']
-        item = StoreInventory.objects.get(rawMaterial_id=raw_material_id)
+        units = int(request.POST['units'])
+        item = StoreInventory.objects.get(rawMaterial_id=raw_material_id, storeId=store_id)
         item_sold = units
         item.unitsAvailable = item.unitsAvailable - item_sold
         item.unitsSold = item.unitsSold + item_sold
@@ -54,10 +65,15 @@ def store_details(request):
             units=units
         )
         transaction.save()
-
+        data = "%s,store=%s units=%s" % (
+            RawMaterials.objects.get(rawMaterial_id=raw_material_id).rawMaterial_name,
+            store_id,
+            str(units)
+        )
+        write_api.write(bucket, org, data)
     else:
         store_id = request.GET['store_id']
-        
+
     items_data = StoreInventory.objects.filter(storeId=store_id)
     store_data = StoreDetails.objects.get(store_id=store_id)
     context = {'items': items_data, 'store': store_data}

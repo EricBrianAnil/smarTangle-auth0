@@ -53,29 +53,6 @@ var lightColor = getComputedStyle(document.body).getPropertyValue('--light');
       $("#sidebar > .nav > .nav-item").find('.collapse.show').collapse('hide');
     });
 
-    function appendBanner() {
-      var bannerState = localStorage.getItem('bannerState') ? localStorage.getItem('bannerState') : "enabled";
-      if (bannerState == "enabled") {
-        $("body").addClass("purchase-banner-active");
-        $("body").prepend('\
-          <div class= "item-purchase-banner">\
-            <p class="banner-text">Buy now at Bootstrapdash.com</p>\
-              <a href="https://www.bootstrapdash.com/product/star-admin-pro/" target="_blank" class= "banner-button btn btn-primary btn-icon">\
-                <i class="mdi mdi-cart"></i> Buy Now\
-              </a>\
-              <span class="toggler-close"><i class="mdi mdi-close"></i></span>\
-          </div>\
-        ')
-        $(".item-purchase-banner .toggler-close").on("click", function () {
-          $(".item-purchase-banner").slideUp(300);
-          $("body").removeClass("purchase-banner-active");
-          localStorage.setItem('bannerState', "disabled");
-        });
-      }
-    }
-
-    appendBanner();
-
     //checkbox and radios
     $(".form-check label,.form-radio label").append('<i class="input-helper"></i>');
 
