@@ -85,6 +85,7 @@ class TransactionHistory(models.Model):
     storeId = models.ForeignKey(StoreDetails, on_delete=models.CASCADE)
     units = models.IntegerField()
     dateTime = models.DateTimeField(auto_now_add=True)
+    hash = models.CharField(max_length=100)
 
     class Meta:
         verbose_name_plural = "Transaction History"

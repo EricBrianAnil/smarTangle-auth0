@@ -18,6 +18,11 @@ bucket = "05dd07784fa8d000"
 client = InfluxDBClient(url="https://us-central1-1.gcp.cloud2.influxdata.com", token=token)
 write_api = client.write_api(write_options=SYNCHRONOUS)
 
+# Hornet Tangle
+from iota import Iota, ProposedTransaction, Address, TryteString
+
+api = Iota('https://nodes.devnet.iota.org:443', testnet=True)
+address = "ZLGVEQ9JUZZWCZXLWVNTHBDX9G9KZTJP9VEERIIFHY9SIQKYBVAHIMLHXPQVE9IXFDDXNHQINXJDRPFDXNYVAPLZAW"
 
 # Create your views here.
 
@@ -28,15 +33,15 @@ def home(request):
 
 
 def sign_up(request):
-    context = {}
+    context_signup = {}
     form = SignUpForm(request.POST or None)
     if request.method == "POST":
         if form.is_valid():
             user = form.save()
             login(request, user)
             return render(request, 'home.html')
-    context['form'] = form
-    return render(request, 'registration/sign_up.html', context)
+    context_signup['form'] = form
+    return render(request, 'registration/sign_up.html', context_signup)
 
 
 def index(request):
@@ -45,8 +50,8 @@ def index(request):
 
 def stores(request):
     stores_data = StoreDetails.objects.all()
-    context = {'stores': stores_data, 'storesLen': len(stores_data)}
-    return render(request, 'stores.html', context)
+    context_stores = {'stores': stores_data, 'storesLen': len(stores_data)}
+    return render(request, 'stores.html', context_stores)
 
 
 def store_details(request):
@@ -59,18 +64,30 @@ def store_details(request):
         item.unitsAvailable = item.unitsAvailable - item_sold
         item.unitsSold = item.unitsSold + item_sold
         item.save()
-        transaction = TransactionHistory(
-            storeId=StoreDetails.objects.get(store_id=store_id),
-            rawMaterial_id=RawMaterials.objects.get(rawMaterial_id=raw_material_id),
-            units=units
-        )
-        transaction.save()
+
         data = "%s,store=%s units=%s" % (
             RawMaterials.objects.get(rawMaterial_id=raw_material_id).rawMaterial_name,
             store_id,
             str(units)
         )
         write_api.write(bucket, org, data)
+
+        message = TryteString.from_unicode(data)
+        tx = ProposedTransaction(
+            address=Address(address),
+            message=message,
+            value=0
+        )
+        result = api.send_transfer(transfers=[tx])
+        hashValue = result['bundle'].tail_transaction.hash
+
+        transaction = TransactionHistory(
+            storeId=StoreDetails.objects.get(store_id=store_id),\
+            rawMaterial_id=RawMaterials.objects.get(rawMaterial_id=raw_material_id),
+            units=units,
+            hash=hashValue
+        )
+        transaction.save()
     else:
         store_id = request.GET['store_id']
 
