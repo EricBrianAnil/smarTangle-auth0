@@ -6,7 +6,7 @@ from rest_framework import viewsets, generics
 from rest_framework.permissions import AllowAny
 from .serializers import UserSerializer
 from .forms import SignUpForm
-from .models import StoreDetails, StoreInventory
+from .models import StoreDetails, StoreInventory, RawMaterials, TransactionHistory
 
 # Create your views here.
 
@@ -41,11 +41,20 @@ def stores(request):
 def store_details(request):
     if request.method == "POST":
         store_id = request.POST['store_id']
-        item = StoreInventory.objects.get(rawMaterial_id=request.POST['rawMaterial_id'])
-        item_sold = int(request.POST['units'])
+        raw_material_id = request.POST['rawMaterial_id']
+        units = request.POST['rawMaterial_id']
+        item = StoreInventory.objects.get(rawMaterial_id=raw_material_id)
+        item_sold = units
         item.unitsAvailable = item.unitsAvailable - item_sold
         item.unitsSold = item.unitsSold + item_sold
         item.save()
+        transaction = TransactionHistory(
+            storeId=StoreDetails.objects.get(store_id=store_id),
+            rawMaterial_id=RawMaterials.objects.get(rawMaterial_id=raw_material_id),
+            units=units
+        )
+        transaction.save()
+
     else:
         store_id = request.GET['store_id']
         
@@ -60,7 +69,18 @@ def store_details(request):
 
 
 def rawmaterial_request(request):
-    return render(request, 'home.html')
+    if request.method == "POST":
+        store_id = request.POST['store_id']
+        store = StoreDetails.objects.get(store_id=store_id)
+        stores_list = StoreDetails.objects.exclude(store_id=store_id)
+        raw_material = RawMaterials.objects.get(rawMaterial_id=request.POST['rawMaterial_id'])
+        items_data = StoreInventory.objects.exclude(storeId=store_id)
+        context = {'store': store, 'rawMaterial': raw_material, 'items': items_data, 'stores': stores_list}
+        if store.storeManager == request.user:
+            context['shopMenu'] = True
+        else:
+            context['shopMenu'] = False
+        return render(request, 'rawmaterial_request.html', context)
 
 
 class UserViewSet(viewsets.ModelViewSet):
