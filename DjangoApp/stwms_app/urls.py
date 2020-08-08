@@ -7,7 +7,7 @@ router.register(r'users', views.UserViewSet)
 
 urlpatterns = [
     path('', views.index, name="index"),
-    path('home', views.home, name="home"),
+    path('home', views.stores, name="home"),
     path('accounts/sign_up/', views.sign_up, name="sign-up"),
     path('stores', views.stores, name="stores"),
     path('storeDetails', views.store_details, name="storeDetails"),

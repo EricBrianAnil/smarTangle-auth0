@@ -32,6 +32,14 @@
                   <div class="card-body">
                     <div class="d-flex justify-content-between">
                       <h4 class="card-title mb-0">Store Inventory</h4>
+                      {% if shopMenu %}
+                        <form action="/rm_request" method="get">
+                            {% csrf_token %}
+{#                            <input type="hidden" name="rawMaterial_id" value="{{ item.rawMaterial_id.rawMaterial_id }}">#}
+                            <input type="hidden" name="store_id" value="{{ store.store_id }}">
+                            <button type="submit" class="btn btn-dark btn-fw">Request for Raw Materials</button>
+                        </form>
+                      {% endif %}
                     </div>
                     <div class="table-responsive">
                       <table class="table table-striped table-hover">
@@ -40,9 +48,6 @@
                             <th>Raw Materials</th>
                             <th>Units Available</th>
                             <th>Units Sold</th>
-                            {% if shopMenu %}
-                            <th>Make Request</th>
-                            {% endif %}
                           </tr>
                         </thead>
                         <tbody>
@@ -51,16 +56,6 @@
                             <td>{{ item.rawMaterial_id.rawMaterial_name }}</td>
                             <td>{{ item.unitsAvailable}}</td>
                             <td>{{ item.unitsSold }}</td>
-                            {% if shopMenu %}
-                            <td>
-                                <form action="/rm_request" method="get">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="rawMaterial_id" value="{{ item.rawMaterial_id.rawMaterial_id }}">
-                                    <input type="hidden" name="store_id" value="{{ store.store_id }}">
-                                    <button type="submit" class="btn btn-dark btn-fw">Request</button>
-                                </form>
-                            </td>
-                            {% endif %}
                           </tr>
                         {% endfor %}
                         </tbody>

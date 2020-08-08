@@ -65,12 +65,12 @@
                       <h4 class="card-title mb-0">Store Inventory</h4>
                     </div>
                     <div class="table-responsive">
-                      <table class="table table-striped table-hover">
+                      <table class="table table-striped table-hover" id="store-inv">
                         <thead>
                           <tr>
-                            <th>Raw Materials</th>
-                            <th>Units Available</th>
-                            <th>Store Name</th>
+                            <th onclick="sortTable(0, 'store-inv')" style="cursor: pointer">Raw Materials</th>
+                            <th onclick="sortTable(1, 'store-inv')" style="cursor: pointer">Units Available</th>
+                            <th onclick="sortTable(2, 'store-inv')" style="cursor: pointer">Store Name</th>
                           </tr>
                         </thead>
                         <tbody>

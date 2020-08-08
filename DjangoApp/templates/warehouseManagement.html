@@ -86,6 +86,23 @@
                 </div>
               </div>
         </div>
+        <script>
+            function myFunction() {
+                document.getElementById("accept").disabled = true;
+                document.getElementById('truckSelect').disabled = false;
+                var submitButton = document.createElement('button');
+                submitButton.name = 'Action';
+                submitButton.type = 'submit';
+                submitButton.value = 'Accepted';
+                submitButton.className = "btn btn-outline-success";
+                submitButton.appendChild(document.createTextNode('Confirm'));
+                document.getElementById('requestForm').appendChild(submitButton);
+            }
+            function getTruckId() {
+                document.getElementById('truckId').value = document.getElementById('truckSelect').value;
+                return true;
+            }
+        </script>
         <div class="row">
             <div class="col-md-12 grid-margin">
                 <div class="card">
@@ -101,24 +118,41 @@
                             <th>From</th>
                             <th>Raw Material</th>
                             <th>Units Requested</th>
-                            <th>Action</th>
+                            <th>Status</th>
+                            <th>Transport</th>
                           </tr>
                         </thead>
                         <tbody>
                           {% for itemRequest in requests %}
-                          <tr>
+                          <tr id="TransportValue">
                             <td>{{ itemRequest.store_id.store_name }}</td>
                             <td>{{ itemRequest.fromStore_id.store_name }}</td>
                             <td>{{ itemRequest.rawMaterial_id.rawMaterial_name }}</td>
                             <td>{{ itemRequest.units }}</td>
-                            <td>
-                                <form method="post" action="/warehouse_management">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="request_id" value="{{ itemRequest.request_id }}">
-                                    <button type="submit" value="Accepted" class="btn btn-outline-success">Accept</button>
-                                    <button type="submit" value="Rejected" class="btn btn-outline-danger">Reject</button>
-                                </form>
-                            </td>
+                            {% if itemRequest.status == 'Pending' %}
+                                    <td>
+                                    <form id='requestForm' method="post" action="/warehouse_management" onsubmit="getTruckId()">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="request_id" value="{{ itemRequest.request_id }}">
+                                        <button type="button" id="accept" onclick="myFunction()" class="btn btn-outline-success">Accept</button>
+                                        <button type="submit" name="Action" value="Rejected" class="btn btn-outline-danger">Reject</button>
+                                        <input id='truckId' type="hidden" name="truck_id">
+                                    </form>
+                                    </td>
+                                    <td>
+                                        <select id='truckSelect' class="form-control" disabled>
+                                        {% for truck in trucks %}
+                                            <option value="{{ truck.truck_id }}"> {{ truck.truck_owner }} </option>
+                                        {% endfor %}
+                                        </select>
+                                    </td>
+                            {% elif itemRequest.status == 'Accepted' %}
+                                <td><label class="badge badge-success">Completed</label></td>
+                                <td>{{ itemRequest.truck.truck_owner }}</td>
+                            {% else %}
+                                <td><label class="badge badge-danger">Rejected</label></td>
+                                <td></td>
+                            {% endif %}
                           </tr>
                         {% endfor %}
                         </tbody>

@@ -7,7 +7,7 @@ from rest_framework.permissions import AllowAny
 from .serializers import UserSerializer
 from .forms import SignUpForm
 from .models import StoreDetails, StoreInventory, RawMaterials, TransactionHistory, RawMaterialRequest, Suppliers, \
-    RawMaterialBatches
+    RawMaterialBatches, TruckDetails, TravelHistory
 import joblib
 
 # Firebase
@@ -103,7 +103,7 @@ def rawmaterial_request(request):
         store_id = request.GET['store_id']
         context = {
             'store': StoreDetails.objects.get(store_id=store_id),
-            'rawMaterial': RawMaterials.objects.get(rawMaterial_id=request.GET['rawMaterial_id']),
+            # 'rawMaterial': RawMaterials.objects.get(rawMaterial_id=request.GET['rawMaterial_id']),
             'items': StoreInventory.objects.exclude(storeId=store_id),
             'stores': StoreDetails.objects.exclude(store_id=store_id),
             'shopMenu': StoreDetails.objects.get(store_id=store_id).storeManager == request.user,
@@ -115,7 +115,8 @@ def rawmaterial_request(request):
             store_id=StoreDetails.objects.get(store_id=request.POST['store_id']),
             rawMaterial_id=RawMaterials.objects.get(rawMaterial_id=request.POST['rawMaterial_id']),
             fromStore_id=StoreDetails.objects.get(store_id=request.POST['from_store_id']),
-            units=request.POST['units']
+            units=request.POST['units'],
+            status='Pending'
         )
         raw_material_request.save()
         return render(request, 'request_success.html', {'requestDetails': raw_material_request})
@@ -125,15 +126,48 @@ def rawmaterial_request(request):
 def w_manage(request):
     if request.user.username == 'admin_ibm':
         if request.method == "POST":
-            raw_material_request = RawMaterialRequest.objects.get(request_id=request.POST['request_id'])
-            # TODO: FINISH THE REQUEST COMPLETION
+            rm_request = RawMaterialRequest.objects.get(request_id=request.POST['request_id'])
+            if request.POST['Action'] == 'Accepted':
+                rm_request.status = 'Accepted'
+                rm_request.truck_id = TruckDetails.objects.get(truck_id=request.POST['truck_id'])
+                fromStore = StoreInventory.objects.get(
+                    storeId=rm_request.fromStore_id,
+                    rawMaterial_id=rm_request.rawMaterial_id
+                )
+                fromStore.unitsAvailable -= rm_request.units
+                try:
+                    toStore = StoreInventory.objects.get(
+                        storeId=rm_request.store_id,
+                        rawMaterial_id=rm_request.rawMaterial_id
+                    )
+                    toStore.unitsAvailable += rm_request.units
+                except StoreInventory.DoesNotExist:
+                    toStore = StoreInventory(
+                        rawMaterial_id=rm_request.rawMaterial_id,
+                        storeId=rm_request.store_id,
+                        unitsSold=0,
+                        unitsAvailable=rm_request.units
+                    )
+                travel = TravelHistory(
+                    toStore_id=rm_request.store_id,
+                    fromStore_id=rm_request.fromStore_id,
+                    truck_id=rm_request.truck_id
+                )
+                fromStore.save()
+                toStore.save()
+                travel.save()
+            else:
+                rm_request.status = 'Rejected'
+            rm_request.save()
         context = {
             'warehouseItems': StoreInventory.objects.filter(storeId='W'),
             'storeItems': StoreInventory.objects.exclude(storeId='W'),
             'store': StoreDetails.objects.get(store_id='W'),
             'requests': RawMaterialRequest.objects.all(),
             'inventory': StoreInventory.objects,
+            'trucks': TruckDetails.objects.all()
         }
+        print(context['trucks'])
         return render(request, 'warehouseManagement.html', context)
 
 
@@ -173,7 +207,7 @@ def procurement(request):
             rawMaterial_id=request.POST['rawMaterial_id'],
             storeId=StoreDetails.objects.get(store_id='W')
         )
-        rawMaterial_update.unitsAvailable += 1000
+        rawMaterial_update.unitsAvailable += dict_data['units']
         rawMaterial_update.save()
 
         data = "%d;%s;%s;%s;%s;%s;%s;%s;%s" % (

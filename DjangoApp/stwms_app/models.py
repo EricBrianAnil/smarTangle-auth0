@@ -90,8 +90,8 @@ class TruckDetails(models.Model):
 
 class TravelHistory(models.Model):
     truck_id = models.ForeignKey(TruckDetails, on_delete=models.PROTECT)
-    batch_id = models.ForeignKey(RawMaterialBatches, on_delete=models.PROTECT)
-    destStore_id = models.ForeignKey(StoreDetails, on_delete=models.PROTECT)
+    toStore_id = models.ForeignKey(StoreDetails, on_delete=models.CASCADE, related_name='travelToStore')
+    fromStore_id = models.ForeignKey(StoreDetails, on_delete=models.CASCADE, related_name='travelFromStore')
 
     class Meta:
         verbose_name_plural = "Travel History"
@@ -103,6 +103,8 @@ class RawMaterialRequest(models.Model):
     rawMaterial_id = models.ForeignKey(RawMaterials, on_delete=models.CASCADE)
     fromStore_id = models.ForeignKey(StoreDetails, on_delete=models.CASCADE, related_name='fromStore')
     units = models.IntegerField()
+    status = models.CharField(max_length=10)
+    truck = models.ForeignKey(TruckDetails, blank=True, null=True, on_delete=models.PROTECT)
 
     class Meta:
         verbose_name_plural = "Raw Materials Requests"

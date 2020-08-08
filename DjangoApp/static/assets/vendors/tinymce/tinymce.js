@@ -13164,7 +13164,7 @@ define(
      * @constructor
      * @method Node
      * @param {String} name Name of the node type.
-     * @param {Number} type Numeric type representing the node.
+     * @param {string} type Numeric type representing the node.
      */
     function Node(name, type) {
       this.name = name;
