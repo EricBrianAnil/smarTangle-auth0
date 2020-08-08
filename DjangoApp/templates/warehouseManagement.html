@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} Warehouse Management {% endblock title %}
+{% block content %}
+    {% autoescape on %}
+        <div class="row">
+          <div class="col-md-12 grid-margin">
+            <div class="card">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-lg-3 col-md-6">
+                    <div class="d-flex">
+                      <div class="wrapper">
+                        <h3 class="mb-0 font-weight-semibold">32,451</h3>
+                        <h5 class="mb-0 font-weight-medium text-primary">Visits</h5>
+                        <p class="mb-0 text-muted">+14.00(+0.50%)</p>
+                      </div>
+                      <div class="wrapper my-auto ml-auto ml-lg-4"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+                        <canvas height="50" width="100" id="stats-line-graph-1" class="chartjs-render-monitor" style="display: block;"></canvas>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+            </div>
+        <div class="row">
+            <div class="col-lg-6 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                      <h4 class="card-title mb-0">Warehouse Inventory</h4>
+                    </div>
+                    <div class="table-responsive">
+                      <table class="table table-striped table-hover" id="ware-inv">
+                        <thead>
+                          <tr>
+                            <th onclick="sortTable(0, 'ware-inv')">Raw Materials</th>
+                            <th onclick="sortTable(1, 'ware-inv')">Units Available</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for item in warehouseItems %}
+                          <tr>
+                            <td>{{ item.rawMaterial_id.rawMaterial_name }}</td>
+                            <td>{{ item.unitsAvailable}}</td>
+                          </tr>
+                        {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <div class="col-lg-6 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                      <h4 class="card-title mb-0">Store Inventory</h4>
+                    </div>
+                    <div class="table-responsive">
+                      <table class="table table-bordered table-hover" id="store-inv">
+                        <thead>
+                          <tr>
+                            <th onclick="sortTable(0, 'store-inv')">Store</th>
+                            <th onclick="sortTable(1, 'store-inv')">Raw Materials</th>
+                            <th onclick="sortTable(2, 'store-inv')">Units Available</th>
+                            <th onclick="sortTable(3, 'store-inv')">Units Sold</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for item in storeItems %}
+                          <tr>
+                            <td>{{ item.storeId.store_id }}</td>
+                            <td>{{ item.rawMaterial_id.rawMaterial_name }}</td>
+                            <td>{{ item.unitsAvailable}}</td>
+                            <td>{{ item.unitsSold }}</td>
+                          </tr>
+                        {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+        </div>
+    {% endautoescape %}
+{% endblock content %}
