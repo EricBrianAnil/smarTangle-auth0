@@ -1,26 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-
-
-# Create your models here.
-
-
-# class Profile(models.Model):
-#     user = models.OneToOneField(User, on_delete=models.CASCADE)
-#     designation = models.CharField(max_length=25)
-
-
-# @receiver(post_save, sender=User)
-# def create_user_profile(sender, instance, created, **kwargs):
-#     if created:
-#         Profile.objects.create(user=instance)
-#
-#
-# @receiver(post_save, sender=User)
-# def save_user_profile(sender, instance, **kwargs):
-#     instance.profile.save()
 
 
 class StoreDetails(models.Model):
@@ -60,10 +39,17 @@ class Suppliers(models.Model):
 
 
 class RawMaterialBatches(models.Model):
-    uniqueBatch_id = models.IntegerField(primary_key=True)
+    uniqueBatch_id = models.AutoField(primary_key=True)
     rawMaterial_id = models.ForeignKey(RawMaterials, on_delete=models.PROTECT)
     units = models.IntegerField()
     supplier = models.ForeignKey(Suppliers, on_delete=models.PROTECT)
+    quality_score = models.FloatField()
+    calories = models.FloatField()
+    proteins = models.FloatField()
+    fat = models.FloatField()
+    sodium = models.FloatField()
+    dateTime = models.DateTimeField(auto_now_add=True)
+    hash = models.CharField(max_length=100)
 
     class Meta:
         verbose_name_plural = "Raw Material Batches"
@@ -89,7 +75,6 @@ class TransactionHistory(models.Model):
     storeId = models.ForeignKey(StoreDetails, on_delete=models.CASCADE)
     units = models.IntegerField()
     dateTime = models.DateTimeField(auto_now_add=True)
-    hash = models.CharField(max_length=100)
 
     class Meta:
         verbose_name_plural = "Transaction History"
@@ -113,9 +98,10 @@ class TravelHistory(models.Model):
 
 
 class RawMaterialRequest(models.Model):
-    store_id = models.ForeignKey(StoreDetails, on_delete=models.CASCADE)
+    request_id = models.AutoField(primary_key=True)
+    store_id = models.ForeignKey(StoreDetails, on_delete=models.CASCADE, related_name='requestedStore')
     rawMaterial_id = models.ForeignKey(RawMaterials, on_delete=models.CASCADE)
-    fromStore_id = models.CharField(max_length=3)
+    fromStore_id = models.ForeignKey(StoreDetails, on_delete=models.CASCADE, related_name='fromStore')
     units = models.IntegerField()
 
     class Meta:

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} Success {% endblock title %}
+{% block page-title %} Procurement Successful {% endblock page-title %}
+
+{% block content %}
+    {% autoescape on %}
+        <div class="row">
+            <div class="col-md-12 grid-margin stretch-card average-price-card">
+                <div class="card text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between pb-2 align-items-center">
+                            <h2 class="font-weight-semibold mb-0">Procurement Successful</h2>
+                            <div class="icon-holder">
+                                <i class="mdi mdi-briefcase-check"></i>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <h5 class="font-weight-semibold mb-0">Batch ID: {{ unique_id }}</h5>
+                            <h5 class="font-weight-semibold mb-0">Raw Material: {{ raw_material_id.rawMaterial_name }}</h5>
+                            <h5 class="font-weight-semibold mb-0">Supplier: {{ supplier_id.supplier_name }}</h5>
+                            <h5 class="font-weight-semibold mb-0">Units: {{ units }}</h5>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <h5 class="font-weight-semibold mb-0">Quality Score: {{ quality_score }}</h5>
+                            <h5 class="font-weight-semibold mb-0">Calories: {{ calories }}</h5>
+                            <h5 class="font-weight-semibold mb-0">Proteins: {{ proteins }}</h5>
+                            <h5 class="font-weight-semibold mb-0">Fat: {{ fat }}</h5>
+                            <h5 class="font-weight-semibold mb-0">Sodium: {{ sodium }}</h5>
+                        </div>
+                    </div>
+                </div>
+              </div>
+          </div>
+    {% endautoescape %}
+{% endblock content %}

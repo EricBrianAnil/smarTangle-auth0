@@ -11,19 +11,19 @@
                 <div class="col-12 grid-margin">
                 <div class="card">
                   <div class="card-body">
-                    <h4 class="card-title">Sales</h4>
+                    <h4 class="card-title">Requests</h4>
                     <form class="form-sample" action="/rm_request" method="post">
                       {% csrf_token %}
                       <input type="hidden" name="store_id" value={{ store.store_id }}>
-                      <p class="card-description"> Shopping Menu </p>
+                      <p class="card-description"> Raw Material Request </p>
                       <div class="row">
                         <div class="col-md-6">
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Item</label>
                             <div class="col-sm-9">
                               <select class="form-control" name="rawMaterial_id">
-                              {% for item in items %}
-                                <option value="{{ item.rawMaterial_id.rawMaterial_id }}"> {{ item.rawMaterial_id.rawMaterial_name }} </option>
+                              {% for rawMaterial in rawMaterialList %}
+                                <option value="{{ rawMaterial.rawMaterial_id }}"> {{ rawMaterial.rawMaterial_name }} </option>
                               {% endfor %}
                               </select>
                             </div>

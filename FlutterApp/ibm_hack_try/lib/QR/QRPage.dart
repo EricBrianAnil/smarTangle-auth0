@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:ibm_hack_try/Home/landingpage.dart';
-import 'package:ibm_hack_try/QR/qrscan.dart';
 import 'package:ibm_hack_try/Utility/utilitypage.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:qrscan/qrscan.dart' as scanner;
+
 
 class QRPage extends StatefulWidget {
   @override
@@ -11,6 +12,15 @@ class QRPage extends StatefulWidget {
 
 class _QRPageState extends State<QRPage> {
   double screenHeight;
+  String scanResult = '';
+
+  //function that launches the scanner
+  Future scanQRCode() async {
+    String cameraScanResult = await scanner.scan();
+    setState(() {
+      scanResult = cameraScanResult;
+    });
+  }
   @override
   Widget build(BuildContext context) {
     screenHeight = MediaQuery.of(context).size.height;
@@ -92,17 +102,18 @@ class _QRPageState extends State<QRPage> {
 
   Widget scan(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(top: screenHeight - 140),
+      margin: EdgeInsets.only(top: screenHeight/4 + 30),
       padding: EdgeInsets.only(left: 5, right: 5),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          RaisedButton(
-            onPressed: (){
-            /*Navigator.push(context,
-            MaterialPageRoute(
-              builder: (context) => ScanScreen()));*/},
+          scanResult == '' ? Text('Result will be displayed here') : Text(scanResult),
+          SizedBox(height: screenHeight/2),
+          Align(
+            alignment: Alignment.topCenter,
+            child:RaisedButton(
+            onPressed: scanQRCode,
             padding: EdgeInsets.symmetric(vertical: 15.0),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10.0)
@@ -119,10 +130,13 @@ class _QRPageState extends State<QRPage> {
                 ),
               ]
             )
-          )
-        ],
+          ),
+        ),
+       ],
       )
     );
   }
+
+  
 }
 

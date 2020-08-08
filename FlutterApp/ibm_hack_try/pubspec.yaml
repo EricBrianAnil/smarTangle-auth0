@@ -29,6 +29,7 @@ dependencies:
   http: ^0.12.0
   carousel_slider: ^1.3.0
   material_design_icons_flutter: 4.0.5345
+  qrscan: ^0.2.17
   
   #pin_code_text_field: ^1.3.3
   

@@ -1,4 +1,3 @@
-from django.db.models import QuerySet
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.contrib.auth import login
@@ -7,11 +6,17 @@ from rest_framework import viewsets, generics
 from rest_framework.permissions import AllowAny
 from .serializers import UserSerializer
 from .forms import SignUpForm
-from .models import StoreDetails, StoreInventory, RawMaterials, TransactionHistory, RawMaterialRequest
+from .models import StoreDetails, StoreInventory, RawMaterials, TransactionHistory, RawMaterialRequest, Suppliers, \
+    RawMaterialBatches
+import joblib
+
+# Firebase
+from firebase_admin import credentials, firestore, initialize_app
 
 # InFluxDb
-from influxdb_client import InfluxDBClient, Point, WritePrecision
+from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
+from iota import Iota, ProposedTransaction, Address, TryteString
 
 token = "NCAxa9xp-pPyTDYnCrkKowLETS_RSKY2gsTajAh9GKDmMv9NOTQPyYa6DsuBHEMGgeMDm6mUy9qBK5bUDKuiLQ=="
 org = "1faff460d4557f87"
@@ -20,10 +25,12 @@ client = InfluxDBClient(url="https://us-central1-1.gcp.cloud2.influxdata.com", t
 write_api = client.write_api(write_options=SYNCHRONOUS)
 
 # Hornet Tangle
-from iota import Iota, ProposedTransaction, Address, TryteString
-
 api = Iota('https://nodes.devnet.iota.org:443', testnet=True)
 address = "ZLGVEQ9JUZZWCZXLWVNTHBDX9G9KZTJP9VEERIIFHY9SIQKYBVAHIMLHXPQVE9IXFDDXNHQINXJDRPFDXNYVAPLZAW"
+
+cred = credentials.Certificate('static/files/smartangle-firebase.json')
+initialize_app(cred)
+
 
 # Create your views here.
 
@@ -75,20 +82,10 @@ def store_details(request):
         )
         write_api.write(bucket, org, data)
 
-        message = TryteString.from_unicode(data)
-        tx = ProposedTransaction(
-            address=Address(address),
-            message=message,
-            value=0
-        )
-        result = api.send_transfer(transfers=[tx])
-        hashValue = result['bundle'].tail_transaction.hash
-
         transaction = TransactionHistory(
             storeId=StoreDetails.objects.get(store_id=store_id),
             rawMaterial_id=RawMaterials.objects.get(rawMaterial_id=raw_material_id),
-            units=units,
-            hash=hashValue
+            units=units
         )
         transaction.save()
     else:
@@ -104,38 +101,118 @@ def store_details(request):
 def rawmaterial_request(request):
     if request.method == "GET":
         store_id = request.GET['store_id']
-        store = StoreDetails.objects.get(store_id=store_id)
-        stores_list = StoreDetails.objects.exclude(store_id=store_id)
-        raw_material = RawMaterials.objects.get(rawMaterial_id=request.GET['rawMaterial_id'])
-        items_data = StoreInventory.objects.exclude(storeId=store_id)
-        context = {'store': store, 'rawMaterial': raw_material, 'items': items_data, 'stores': stores_list, 'shopMenu': store.storeManager == request.user}
+        context = {
+            'store': StoreDetails.objects.get(store_id=store_id),
+            'rawMaterial': RawMaterials.objects.get(rawMaterial_id=request.GET['rawMaterial_id']),
+            'items': StoreInventory.objects.exclude(storeId=store_id),
+            'stores': StoreDetails.objects.exclude(store_id=store_id),
+            'shopMenu': StoreDetails.objects.get(store_id=store_id).storeManager == request.user,
+            'rawMaterialList': RawMaterials.objects.all()
+        }
         return render(request, 'rawmaterial_request.html', context)
     elif request.method == "POST":
-        store_id = request.POST['store_id']
-        raw_material_id = request.POST['rawMaterial_id']
-        from_store_id = request.POST['from_store_id']
-        units = request.POST['units']
-        request = RawMaterialRequest(
-            store_id=StoreDetails.objects.get(store_id=store_id),
-            rawMaterial_id=RawMaterials.objects.get(rawMaterial_id=raw_material_id),
-            fromStore_id=from_store_id,
-            units=units
+        raw_material_request = RawMaterialRequest(
+            store_id=StoreDetails.objects.get(store_id=request.POST['store_id']),
+            rawMaterial_id=RawMaterials.objects.get(rawMaterial_id=request.POST['rawMaterial_id']),
+            fromStore_id=StoreDetails.objects.get(store_id=request.POST['from_store_id']),
+            units=request.POST['units']
         )
-        request.save()
-        return render(request, 'request_success.html')
+        raw_material_request.save()
+        return render(request, 'request_success.html', {'requestDetails': raw_material_request})
 
 
 @login_required
 def w_manage(request):
     if request.user.username == 'admin_ibm':
-        stores_list = StoreDetails.objects.all()
+        if request.method == "POST":
+            raw_material_request = RawMaterialRequest.objects.get(request_id=request.POST['request_id'])
+            # TODO: FINISH THE REQUEST COMPLETION
         context = {
             'warehouseItems': StoreInventory.objects.filter(storeId='W'),
             'storeItems': StoreInventory.objects.exclude(storeId='W'),
             'store': StoreDetails.objects.get(store_id='W'),
+            'requests': RawMaterialRequest.objects.all(),
+            'inventory': StoreInventory.objects,
         }
         return render(request, 'warehouseManagement.html', context)
 
+
+def procurement(request):
+    if request.method == "POST":
+        model = joblib.load('static/files/model.sav')
+        dict_data = {
+            'raw_material_id': RawMaterials.objects.get(rawMaterial_id=request.POST['rawMaterial_id']),
+            'supplier_id': Suppliers.objects.get(supplier_id=request.POST['supplier_id']),
+            'units': int(request.POST['units']),
+            'calories': float(request.POST['calories']),
+            'proteins': float(request.POST['proteins']),
+            'fat': float(request.POST['fat']),
+            'sodium': float(request.POST['sodium']),
+        }
+        dict_data['quality_score'] = model.predict([[
+            dict_data['calories'],
+            dict_data['proteins'],
+            dict_data['fat'],
+            dict_data['sodium']
+        ]])[0].round(2)
+        batch = RawMaterialBatches(
+            rawMaterial_id=dict_data['raw_material_id'],
+            supplier=dict_data['supplier_id'],
+            units=dict_data['units'],
+            calories=dict_data['calories'],
+            sodium=dict_data['sodium'],
+            proteins=dict_data['proteins'],
+            fat=dict_data['fat'],
+            quality_score=dict_data['quality_score'],
+            hash=''
+        )
+        batch.save()
+        unique_batch_id = batch.uniqueBatch_id
+
+        rawMaterial_update = StoreInventory.objects.get(
+            rawMaterial_id=request.POST['rawMaterial_id'],
+            storeId=StoreDetails.objects.get(store_id='W')
+        )
+        rawMaterial_update.unitsAvailable += 1000
+        rawMaterial_update.save()
+
+        data = "%d;%s;%s;%s;%s;%s;%s;%s;%s" % (
+            unique_batch_id,
+            dict_data['raw_material_id'].rawMaterial_name,
+            dict_data['supplier_id'].supplier_name,
+            dict_data['units'],
+            dict_data['quality_score'],
+            dict_data['calories'],
+            dict_data['proteins'],
+            dict_data['sodium'],
+            dict_data['fat']
+        )
+        context = dict_data.copy()
+        message = TryteString.from_unicode(data)
+        tx = ProposedTransaction(
+            address=Address(address),
+            message=message,
+            value=0
+        )
+        result = api.send_transfer(transfers=[tx])
+        dict_data['hashValue'] = result['bundle'].tail_transaction.hash
+        batch.hash = dict_data['hashValue']
+        batch.save()
+
+        dict_data['hashValue'] = str(dict_data['hashValue'])
+        dict_data['raw_material_id'] = dict_data['raw_material_id'].rawMaterial_name
+        dict_data['supplier_id'] = dict_data['supplier_id'].supplier_name
+        db = firestore.client()
+        db.collection(u'RawMaterialBatch').document(str(unique_batch_id)).set(dict_data)
+
+        dict_data['unique_id'] = unique_batch_id
+        return render(request, 'procure_success.html', context)
+
+    context = {
+        'rawMaterials': RawMaterials.objects.all(),
+        'suppliers': Suppliers.objects.all(),
+    }
+    return render(request, 'procurement.html', context)
 
 
 class UserViewSet(viewsets.ModelViewSet):
