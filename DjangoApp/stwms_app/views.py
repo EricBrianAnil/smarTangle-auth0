@@ -2,13 +2,15 @@ from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from rest_framework import viewsets, generics
+from django.contrib.admin.models import LogEntry
+from rest_framework import viewsets, generics, filters
 from rest_framework.permissions import AllowAny
-from .serializers import UserSerializer
+import joblib
+from .serializers import UserSerializer, MaterialAvailability
 from .forms import SignUpForm
 from .models import StoreDetails, StoreInventory, RawMaterials, TransactionHistory, RawMaterialRequest, Suppliers, \
     RawMaterialBatches, TruckDetails, TravelHistory
-import joblib
+from .MLmodels import TimeSeriesModel as tsModel
 
 # Firebase
 from firebase_admin import credentials, firestore, initialize_app
@@ -29,7 +31,10 @@ api = Iota('https://nodes.devnet.iota.org:443', testnet=True)
 address = "ZLGVEQ9JUZZWCZXLWVNTHBDX9G9KZTJP9VEERIIFHY9SIQKYBVAHIMLHXPQVE9IXFDDXNHQINXJDRPFDXNYVAPLZAW"
 
 cred = credentials.Certificate('static/files/smartangle-firebase.json')
-initialize_app(cred)
+try:
+    initialize_app(cred)
+except ValueError:
+    pass
 
 
 # Create your views here.
@@ -93,7 +98,13 @@ def store_details(request):
 
     items_data = StoreInventory.objects.filter(storeId=store_id)
     store_data = StoreDetails.objects.get(store_id=store_id)
-    context = {'items': items_data, 'store': store_data, 'shopMenu': store_data.storeManager == request.user}
+    itemsList = [i.rawMaterial_id.rawMaterial_name for i in items_data]
+    context = {
+        'items': items_data,
+        'store': store_data,
+        'shopMenu': store_data.storeManager == request.user,
+        'itemsList': itemsList
+    }
     return render(request, 'storeDetails.html', context)
 
 
@@ -165,12 +176,14 @@ def w_manage(request):
             'store': StoreDetails.objects.get(store_id='W'),
             'requests': RawMaterialRequest.objects.all(),
             'inventory': StoreInventory.objects,
-            'trucks': TruckDetails.objects.all()
+            'trucks': TruckDetails.objects.all(),
+            'logs': LogEntry.objects.all()
         }
-        print(context['trucks'])
+        context['logsLen'] = len(context['logs'])
         return render(request, 'warehouseManagement.html', context)
 
 
+@login_required
 def procurement(request):
     if request.method == "POST":
         model = joblib.load('static/files/model.sav')
@@ -247,6 +260,44 @@ def procurement(request):
         'suppliers': Suppliers.objects.all(),
     }
     return render(request, 'procurement.html', context)
+
+
+@login_required
+def forecast(request):
+    context = {
+        'rawMaterials': RawMaterials.objects.all(),
+        'post': False
+    }
+    if request.method == "POST":
+        context['post'] = True
+        context['forecast'] = {}
+        rawMaterial = RawMaterials.objects.get(rawMaterial_id=request.POST['rawMaterial_id'])
+        forecastPeriod = int(request.POST['forecastPeriod'])
+        storesList = StoreDetails.objects.filter(store_id='S1')
+        for store in storesList:
+            model = tsModel(rawMaterial.rawMaterial_id, store.store_id, forecastPeriod)
+            partForecast, fullForecast, yhat = model.fb_prophet()
+            context['forecast'][store] = {
+                'partforecast': partForecast.drop(
+                    ['additive_terms', 'additive_terms_lower', 'additive_terms_upper', 'multiplicative_terms', 'multiplicative_terms_lower', 'multiplicative_terms_upper'],
+                    axis=1
+                ),
+                'fullForecast': fullForecast,
+                'yhat': yhat
+            }
+        try:
+            context['labels'] = partForecast.ds.values
+        except NameError:
+            pass
+        print(context['labels'])
+    return render(request, 'forecastDetails.html', context)
+
+
+class CheckAvailability(generics.ListCreateAPIView):
+    search_fields = ['rawMaterial_id__rawMaterial_name']
+    filter_backends = (filters.SearchFilter,)
+    queryset = StoreInventory.objects.exclude(storeId='W')
+    serializer_class = MaterialAvailability
 
 
 class UserViewSet(viewsets.ModelViewSet):

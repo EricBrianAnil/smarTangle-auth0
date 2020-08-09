@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from .models import StoreInventory
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -14,3 +15,10 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+
+class MaterialAvailability(serializers.ModelSerializer):
+
+    class Meta:
+        model = StoreInventory
+        fields = '__all__'

@@ -2,6 +2,33 @@
 {% load static %}
 
 {% block title %} Warehouse Management {% endblock title %}
+
+{% block notifications %}
+    <ul class="navbar-nav ml-auto">
+            <li class="nav-item dropdown">
+              <a class="nav-link count-indicator" id="messageDropdown" href="#" data-toggle="dropdown" aria-expanded="false">
+                <i class="mdi mdi-bell-outline"></i>
+                <span class="count">{{ logsLen }}</span>
+              </a>
+              <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0" aria-labelledby="messageDropdown" style="overflow-y: scroll">
+                <a class="dropdown-item py-3">
+                  <p class="mb-0 font-weight-medium float-left">Notifications</p>
+                </a>
+                <div class="dropdown-divider"></div>
+                  {% for log in logs %}
+                    <a class="dropdown-item preview-item">
+                      <div class="preview-item-content flex-grow py-2">
+                        <p class="preview-subject ellipsis font-weight-medium text-dark"> {{ log.user.first_name }} </p>
+                        <p class="font-weight-light small-text"> {{ log.object_repr }} </p>
+                        <p class="font-weight-light small-text"> {{ log.action_time }} </p>
+                      </div>
+                    </a>
+                  {% endfor %}
+              </div>
+            </li>
+          </ul>
+{% endblock %}
+
 {% block content %}
     {% autoescape on %}
         <div class="row">

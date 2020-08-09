@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} Forecast {% endblock title %}
+{% block content %}
+    {% autoescape on %}
+        {% if post %}
+            <div class="row">
+                <div class="col-md-12 grid-margin">
+                    <div class="card">
+                        <div class="p-4 border-bottom bg-light">
+                            <h4 class="card-title mb-0">Store Forecast</h4>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="salesforecast" height="508" style="display: block; width: 1526px; height: 508px;" width="1526" class="chartjs-render-monitor"></canvas>
+                            <div class="mr-5" id="mixed-chart-legend"><div class="chartjs-legend d-flex justify-content-center mt-4">
+                        </div>
+                    </div>
+
+                        <script>
+                            var datasetData = new Object();
+                            {% for key, value in forecast.items %}
+                                datasetData.{{ key.store_id }} = new Array();
+                                {% for i in value.partforecast.yhat.values %}
+                                    datasetData.{{ key.store_id }}.push({{ i }});
+                                {% endfor %}
+                            {% endfor %}
+                            console.log(datasetData['S1']);
+                            var chartData = {
+                              labels: ['a', 'b', 'c', 'd', 'e']{# {{ labels }} #},
+                              datasets: [
+                                  {% for key, value in forecast.items %}
+                                      {
+                                        type: 'line',
+                                        label: '{{ key.store_name }}',
+                                        data: datasetData['{{ key.store_id }}'],
+                                        backgroundColor: '#ffffff',
+                                        borderColor: '#000000',
+                                        borderWidth: 3,
+                                        fill: false,
+                                      }
+                                  {% endfor %}
+                              ]
+                            };
+                            var config = {
+                              type: 'bar',
+                              data: chartData,
+                              options: {
+                                responsive: true,
+                                title: {
+                                  display: true,
+                                  text: 'Sales Forecast'
+                                },
+                                scales: {
+                                  xAxes: [{
+                                    display: true,
+                                    ticks: {
+                                      fontColor: '#212229',
+                                      stepSize: 50,
+                                      min: 0,
+                                      max: 150,
+                                      autoSkip: true,
+                                      autoSkipPadding: 15,
+                                      maxRotation: 0,
+                                      maxTicksLimit: 10
+                                    },
+                                    gridLines: {
+                                      display: false,
+                                      drawBorder: false,
+                                      color: 'transparent',
+                                      zeroLineColor: '#eeeeee'
+                                    }
+                                  }],
+                                  yAxes: [{
+                                    display: true,
+                                    scaleLabel: {
+                                      display: true,
+                                      labelString: 'Units',
+                                      fontSize: 12,
+                                      lineHeight: 2
+                                    },
+                                    ticks: {
+                                      fontColor: '#212229',
+                                      display: true,
+                                      autoSkip: false,
+                                      maxRotation: 0,
+                                    },
+                                    gridLines: {
+                                      drawBorder: false
+                                    }
+                                  }]
+                                },
+                                legend: {
+                                  display: false
+                                },
+                                legendCallback: function (chart) {
+                                  var text = [];
+                                  text.push('<div class="chartjs-legend d-flex justify-content-center mt-4"><ul>');
+                                  for (var i = 0; i < chart.data.datasets.length; i++) {
+                                    console.log(chart.data.datasets[i]); // see what's inside the obj.
+                                    text.push('<li>');
+                                    text.push('<span style="background-color:' + chart.data.datasets[i].borderColor + '">' + '</span>');
+                                    text.push(chart.data.datasets[i].label);
+                                    text.push('</li>');
+                                  }
+                                  text.push('</ul></div>');
+                                  return text.join("");
+                                }
+                              }
+                            }
+
+                            window.onload = function() {
+                              var ctx = document.getElementById('salesforecast').getContext('2d');
+                              lineChart = new Chart(ctx, config);
+                              document.getElementById('mixed-chart-legend').innerHTML = lineChart.generateLegend();
+                            };
+
+                          </script>
+                      </div>
+                    </div>
+                  </div>
+            </div>
+            <div class="row">
+                {% for key, value in forecast.items %}
+                <div class="col-lg-12 grid-margin stretch-card">
+                    <div class="card">
+                  <div class="card-body">
+                    <h4 class="card-title">{{ key.store_name }}</h4>
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          {% for data in value.partforecast %}
+                            <th>{{ data }}</th>
+                          {% endfor %}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for dataValues in value.partforecast.values %}
+                            <tr>
+                                {% for val in dataValues %}
+                              	    <td>{{ val }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="row">
+                <div class="col-lg-12 grid-margin stretch-card">
+                    <div class="card">
+                      <div class="card-body">
+                        <h4 class="card-title">Raw Material Forecast</h4>
+                        <p class="card-description">  </p>
+                        <table class="table table-hover">
+                          <thead>
+                            <tr>
+                              <th>Raw Material</th>
+                              <th>Forecast Period</th>
+                              <th>Make Predictions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for rawMaterial in rawMaterials %}
+                                <form action="/forecast" method="post">
+                                    {% csrf_token %}
+                                    <tr>
+                                      <td>{{ rawMaterial.rawMaterial_name }}</td>
+                                      <td>
+                                          <input type="number" class="form-control" name="forecastPeriod" placeholder="Enter the no: of days" min="0" max="70">
+                                      </td>
+                                      <td>
+                                          <input type="hidden" name="rawMaterial_id" value="{{ rawMaterial.rawMaterial_id }}">
+                                          <button type="submit" class="btn btn-dark btn-fw">Make Predictions</button>
+                                      </td>
+                                    </tr>
+                                </form>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+            </div>
+        {% endif %}
+    {% endautoescape %}
+{% endblock content %}

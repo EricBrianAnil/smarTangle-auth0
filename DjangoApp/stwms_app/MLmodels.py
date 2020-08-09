@@ -40,6 +40,7 @@ class TimeSeriesModel:
         future = fbP_model.make_future_dataframe(periods=self.prediction_size)
         forecast = fbP_model.predict(future)
 
+        partForecast = forecast[-self.prediction_size:]
         y_hat = forecast['yhat'][-self.prediction_size:]
         y_hat.reset_index(drop=True, inplace=True)
 
@@ -49,7 +50,10 @@ class TimeSeriesModel:
             plt.plot(self.df['ds'], self.df['y'], color='red')
             plt.show()
 
+        partForecast['ds'] = pd.to_datetime(partForecast['ds']).dt.strftime('%Y-%m-%d')
+        return partForecast, forecast, y_hat
+
 
 if '__name__' == '__main__':
-    model = TimeSeriesModel('101', 'S1')
+    model = TimeSeriesModel('101', 'S1', 7)
     model.fb_prophet(plot=True)
