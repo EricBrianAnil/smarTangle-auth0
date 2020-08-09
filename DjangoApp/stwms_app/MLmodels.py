@@ -1,27 +1,30 @@
 import pandas as pd
 from matplotlib import pyplot as plt
-import numpy as np
 from fbprophet import Prophet
+from .models import TransactionHistory
 
 
 class TimeSeriesModel:
 
-    def __init__(self, file, item_index, split_percent):
-        self.df = pd.read_csv(file)
-        self.item_index = item_index
-        self.split_percent = split_percent
+    def __init__(self, raw_material_id, store_id, future_period):
+        self.df = ''
+        self.prediction_size = future_period
         self.error_log = {}
+        self.get_data(raw_material_id, store_id)
+        self.data_clean()
 
-    def predictor(self):
+    def get_data(self, raw_material_id, store_id):
+        self.df = TransactionHistory.objects.filter(rawMaterial_id_id=raw_material_id, storeId_id=store_id) \
+            .to_dataframe()
+
+    def data_clean(self, with_time=False):
         raw_df = self.df
-        raw_df.Description = pd.Categorical(raw_df.Description)
-        raw_df['item'] = raw_df.Description.cat.codes
-        raw_df['Date'] = pd.to_datetime(raw_df['Date'])
-        mod_df = raw_df.drop(['Description', 'Time', 'InvoiceNo'], axis=1)
-        mod_df.rename(columns={'Date': 'ds', 'Quantity': 'y'}, inplace=True)
-        pos_df = mod_df[mod_df['y'] > 0]
-        pos_df = pos_df[pos_df['item'] == self.item_index]
-        final_df = pos_df.drop(['item'], axis=1)
+        if with_time:
+            raw_df['dateTime'] = pd.to_datetime(df['dateTime']).dt.tz_convert('Asia/Kolkata').dt.tz_localize(None)
+        else:
+            raw_df['dateTime'] = pd.to_datetime(raw_df['dateTime']).dt.date
+        final_df = raw_df.drop(['transaction_id', 'rawMaterial_id', 'storeId'], axis=1)
+        final_df.rename(columns={'dateTime': 'ds', 'units': 'y'}, inplace=True)
         self.df = final_df.sort_values(by="ds")
 
     def plot_df(self):
@@ -31,35 +34,22 @@ class TimeSeriesModel:
         plt.ylabel('Quantity')
         plt.show()
 
-    def split(self):
-        prediction_size = int(self.split_percent * len(self.df))
-        train_df = self.df[:-prediction_size]
-        test_df = self.df[-prediction_size:]
-        return train_df, test_df, prediction_size
-
     def fb_prophet(self, plot=False):
-        self.predictor()
-        train_df, test_df, prediction_size = self.split()
-
         fbP_model = Prophet()
-        fbP_model.fit(train_df)
-        future = fbP_model.make_future_dataframe(periods=prediction_size)
+        fbP_model.fit(self.df)
+        future = fbP_model.make_future_dataframe(periods=self.prediction_size)
         forecast = fbP_model.predict(future)
 
-        y_hat = forecast['yhat'][-prediction_size:]
-        y = test_df['y']
+        y_hat = forecast['yhat'][-self.prediction_size:]
         y_hat.reset_index(drop=True, inplace=True)
-        y.reset_index(drop=True, inplace=True)
-
-        self.error_log['se'] = np.square(y_hat - y)
-        self.error_log['mse'] = np.mean(self.error_log['se'])
-        self.error_log['rmse'] = np.sqrt(self.error_log['mse'])
 
         if plot:
+            fbP_model.plot_components(forecast)
             plt.plot(forecast['ds'], forecast['yhat'])
-            plt.plot(train_df['ds'], train_df['y'], color='red')
+            plt.plot(self.df['ds'], self.df['y'], color='red')
             plt.show()
 
 
-model = TimeSeriesModel('datasets/Online Retail.csv', 15, 0.1)
-model.fb_prophet(plot=True)
+if '__name__' == '__main__':
+    model = TimeSeriesModel('101', 'S1')
+    model.fb_prophet(plot=True)

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ibm_hack_try/Home/landingpage.dart';
+import 'package:ibm_hack_try/QR/QRScan.dart';
 import 'package:ibm_hack_try/Utility/utilitypage.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
@@ -20,6 +21,8 @@ class _QRPageState extends State<QRPage> {
     setState(() {
       scanResult = cameraScanResult;
     });
+    Navigator.push(context, MaterialPageRoute(builder: (context) => ScanResult(scanResult: cameraScanResult)));
+    
   }
   @override
   Widget build(BuildContext context) {
@@ -108,7 +111,6 @@ class _QRPageState extends State<QRPage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          scanResult == '' ? Text('Result will be displayed here') : Text(scanResult),
           SizedBox(height: screenHeight/2),
           Align(
             alignment: Alignment.topCenter,

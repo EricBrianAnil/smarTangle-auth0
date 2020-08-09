@@ -139,7 +139,7 @@ class _HomePageState extends State<HomePage> {
       children: <Widget>[
       Container(
         margin: EdgeInsets.only(top: screenHeight / 5),
-        padding: EdgeInsets.only(left: 5, right: 5),
+        padding: EdgeInsets.only(left: 15, right: 15),
         
         child: TextField(
           onChanged: (value) {},
@@ -217,35 +217,13 @@ class _HomePageState extends State<HomePage> {
           SizedBox(
             height: 1.0,
           ),
-          /*Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              /*OutlineButton(
-                onPressed: goToPrevious,
-                child: Text("<"),
-                borderSide: BorderSide(width:1.0),
-              ),
-              OutlineButton(
-                onPressed: goToNext,
-                child: Text(">"),
-              ),*/
-              
-            ]
-          ),*/
+         
         ],
       ),
     );
   }
  
- /* goToPrevious() {
-    carouselSlider.previousPage(
-        duration: Duration(milliseconds: 300), curve: Curves.ease);
-  }
- 
-  goToNext() {
-    carouselSlider.nextPage(
-        duration: Duration(milliseconds: 300), curve: Curves.decelerate);
-  }*/
+
 
   Widget sales(BuildContext context) {
     return Container(
@@ -266,10 +244,10 @@ class _HomePageState extends State<HomePage> {
               shrinkWrap: true,
               crossAxisCount: 2,
               children: <Widget>[
-              Menu(title:"Apples", rate: 'Rs 60/kg'),
-              Menu(title:"Oranges", rate: 'Rs 50/kg'),
-              Menu(title:"Grapes", rate: 'Rs 70/kg'),
-              Menu(title:"Bananas", rate: 'Rs 80/kg'),
+              Menu(title:"Apple", rate: '  Rs 60/kg  '),
+              Menu(title:"Carrot", rate: '  Rs 50/kg  '),
+              Menu(title:"Grapes", rate: '  Rs 70/kg  '),
+              Menu(title:"Banana", rate: '  Rs 80/kg  '),
           ]  
       ),
       
@@ -294,18 +272,16 @@ class Menu extends StatelessWidget {
       ),
       child: Column(
         children: <Widget>[
-          SizedBox(height:50.0),
+          SizedBox(height:10.0),
           Align(
-            alignment: Alignment.center,
-            child: Text(title, 
-              style: TextStyle(
-                fontSize: 20, 
-                color: Colors.black, 
-                fontWeight: FontWeight.bold, fontFamily: 'Montserrat' 
-              )
-            ), 
+            alignment: Alignment.topCenter,
+            child: Image.asset(
+              'images/'+ title +'.png',
+              height: 90,
+              width: 90,
+            ),
           ),
-          SizedBox(height:40.0),
+          SizedBox(height:20.0),
           Align(
             alignment: Alignment.bottomRight,
             child: Text(rate, 

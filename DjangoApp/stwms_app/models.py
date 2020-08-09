@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django_pandas.managers import DataFrameManager
 
 
 class StoreDetails(models.Model):
@@ -75,6 +76,8 @@ class TransactionHistory(models.Model):
     storeId = models.ForeignKey(StoreDetails, on_delete=models.CASCADE)
     units = models.IntegerField()
     dateTime = models.DateTimeField(auto_now_add=True)
+
+    objects = DataFrameManager()
 
     class Meta:
         verbose_name_plural = "Transaction History"
