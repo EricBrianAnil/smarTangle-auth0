@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:ibm_hack_try/Home/landingpage.dart';
 import 'package:ibm_hack_try/QR/QRPage.dart';
+import 'package:ibm_hack_try/Utility/Request/Requests.dart';
 import 'package:ibm_hack_try/Utility/ShoppingCart/shopping.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+
 
 class UtilityPage extends StatefulWidget {
   @override
@@ -186,7 +188,9 @@ class _UtilityPageState extends State<UtilityPage> {
                 child: RaisedButton(
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0),),
                   color: const Color(0xffdd377b),
-                  onPressed: (){},
+                  onPressed: (){
+                    Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => Requests()));},
                   padding: EdgeInsets.only( right:30.0, top:70.0),
                   child: Text("Request\nMaterials",style: TextStyle( fontFamily: 'Montserrat',
                     fontSize: 20,
