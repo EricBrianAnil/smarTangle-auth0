@@ -35,9 +35,9 @@ class TimeSeriesModel:
         plt.show()
 
     def fb_prophet(self, plot=False):
-        fbP_model = Prophet()
+        fbP_model = Prophet(n_changepoints=2)
         fbP_model.fit(self.df)
-        future = fbP_model.make_future_dataframe(periods=self.prediction_size)
+        future = fbP_model.make_future_dataframe(periods=self.prediction_size, freq="D", include_history=False)
         forecast = fbP_model.predict(future)
 
         partForecast = forecast[-self.prediction_size:]
@@ -50,7 +50,7 @@ class TimeSeriesModel:
             plt.plot(self.df['ds'], self.df['y'], color='red')
             plt.show()
 
-        partForecast['ds'] = pd.to_datetime(partForecast['ds']).dt.strftime('%Y-%m-%d')
+        partForecast['ds'] = pd.to_datetime(partForecast['ds']).dt.strftime('%d %b')
         return partForecast, forecast, y_hat
 
 

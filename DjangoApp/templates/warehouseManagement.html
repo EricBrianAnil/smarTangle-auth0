@@ -2,129 +2,153 @@
 {% load static %}
 
 {% block title %} Warehouse Management {% endblock title %}
+{% block page-title %} Warehouse Management {% endblock page-title %}
 
 {% block notifications %}
     <ul class="navbar-nav ml-auto">
-            <li class="nav-item dropdown">
-              <a class="nav-link count-indicator" id="messageDropdown" href="#" data-toggle="dropdown" aria-expanded="false">
+        <li class="nav-item dropdown">
+            <a class="nav-link count-indicator" id="messageDropdown" href="#" data-toggle="dropdown"
+               aria-expanded="false">
                 <i class="mdi mdi-bell-outline"></i>
                 <span class="count">{{ logsLen }}</span>
-              </a>
-              <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0" aria-labelledby="messageDropdown" style="overflow-y: scroll">
+            </a>
+            <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0"
+                 aria-labelledby="messageDropdown" style="overflow-y: scroll">
                 <a class="dropdown-item py-3">
-                  <p class="mb-0 font-weight-medium float-left">Notifications</p>
+                    <p class="mb-0 font-weight-medium float-left">Notifications</p>
                 </a>
                 <div class="dropdown-divider"></div>
-                  {% for log in logs %}
+                {% for log in logs %}
                     <a class="dropdown-item preview-item">
-                      <div class="preview-item-content flex-grow py-2">
-                        <p class="preview-subject ellipsis font-weight-medium text-dark"> {{ log.user.first_name }} </p>
-                        <p class="font-weight-light small-text"> {{ log.object_repr }} </p>
-                        <p class="font-weight-light small-text"> {{ log.action_time }} </p>
-                      </div>
+                        <div class="preview-item-content flex-grow py-2">
+                            <p class="preview-subject ellipsis font-weight-medium text-dark"> {{ log.user.first_name }} </p>
+                            <p class="font-weight-light small-text"> {{ log.object_repr }} </p>
+                            <p class="font-weight-light small-text"> {{ log.action_time }} </p>
+                        </div>
                     </a>
-                  {% endfor %}
-              </div>
-            </li>
-          </ul>
+                {% endfor %}
+            </div>
+        </li>
+    </ul>
 {% endblock %}
 
 {% block content %}
     {% autoescape on %}
         <div class="row">
-          <div class="col-md-12 grid-margin">
-            <div class="card">
-              <div class="card-body">
-                <div class="row">
-                  <div class="col-lg-3 col-md-6">
-                    <div class="d-flex">
-                      <div class="wrapper">
-                        <h3 class="mb-0 font-weight-semibold">32,451</h3>
-                        <h5 class="mb-0 font-weight-medium text-primary">Visits</h5>
-                        <p class="mb-0 text-muted">+14.00(+0.50%)</p>
-                      </div>
-                      <div class="wrapper my-auto ml-auto ml-lg-4"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
-                        <canvas height="50" width="100" id="stats-line-graph-1" class="chartjs-render-monitor" style="display: block;"></canvas>
-                      </div>
+            <div class="col-md-12 grid-margin">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-3 col-md-6">
+                                <div class="d-flex">
+                                    <div class="wrapper">
+                                        <h3 class="mb-0 font-weight-semibold">32,451</h3>
+                                        <h5 class="mb-0 font-weight-medium text-primary">Visits</h5>
+                                        <p class="mb-0 text-muted">+14.00(+0.50%)</p>
+                                    </div>
+                                    <div class="wrapper my-auto ml-auto ml-lg-4">
+                                        <div class="chartjs-size-monitor">
+                                            <div class="chartjs-size-monitor-expand">
+                                                <div class=""></div>
+                                            </div>
+                                            <div class="chartjs-size-monitor-shrink">
+                                                <div class=""></div>
+                                            </div>
+                                        </div>
+                                        <canvas height="50" width="100" id="stats-line-graph-1"
+                                                class="chartjs-render-monitor" style="display: block;"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                  </div>
                 </div>
-              </div>
             </div>
-          </div>
-            </div>
+        </div>
         <div class="row">
             <div class="col-lg-6 grid-margin stretch-card">
                 <div class="card">
-                  <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                      <h3>Warehouse Inventory</h3>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <h3>Warehouse Inventory</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" id="ware-inv">
+                                <thead>
+                                <tr>
+                                    <th onclick="sortTable(0, 'ware-inv', 1)" style="cursor: pointer">Raw Materials</th>
+                                    <th onclick="sortTable(1, 'ware-inv', 2)" style="cursor: pointer">Units Available
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for item in warehouseItems %}
+                                    <tr>
+                                        <td>{{ item.rawMaterial_id.rawMaterial_name }}</td>
+                                        <td>{{ item.unitsAvailable }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <div class="table-responsive">
-                      <table class="table table-striped table-hover" id="ware-inv">
-                        <thead>
-                          <tr>
-                            <th onclick="sortTable(0, 'ware-inv')" style="cursor: pointer">Raw Materials</th>
-                            <th onclick="sortTable(1, 'ware-inv')" style="cursor: pointer">Units Available</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {% for item in warehouseItems %}
-                          <tr>
-                            <td>{{ item.rawMaterial_id.rawMaterial_name }}</td>
-                            <td>{{ item.unitsAvailable}}</td>
-                          </tr>
-                        {% endfor %}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
                 </div>
-              </div>
+            </div>
             <div class="col-lg-6 grid-margin stretch-card">
                 <div class="card">
-                  <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                      <h3>Store Inventory</h3>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <h3>Store Inventory</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover" id="store-inv">
+                                <thead>
+                                <tr>
+                                    <th onclick="sortTable(0, 'store-inv', 1)" style="cursor: pointer">Store</th>
+                                    <th onclick="sortTable(1, 'store-inv', 1)" style="cursor: pointer">Raw Materials
+                                    </th>
+                                    <th onclick="sortTable(2, 'store-inv', 2)" style="cursor: pointer">Units Available
+                                    </th>
+                                    <th onclick="sortTable(3, 'store-inv', 2)" style="cursor: pointer">Units Sold</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for item in storeItems %}
+                                    <tr>
+                                        <td>{{ item.storeId.store_id }}</td>
+                                        <td>{{ item.rawMaterial_id.rawMaterial_name }}</td>
+                                        <td>{{ item.unitsAvailable }}</td>
+                                        <td>{{ item.unitsSold }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <div class="table-responsive">
-                      <table class="table table-bordered table-hover" id="store-inv">
-                        <thead>
-                          <tr>
-                            <th onclick="sortTable(0, 'store-inv')" style="cursor: pointer">Store</th>
-                            <th onclick="sortTable(1, 'store-inv')" style="cursor: pointer">Raw Materials</th>
-                            <th onclick="sortTable(2, 'store-inv')" style="cursor: pointer">Units Available</th>
-                            <th onclick="sortTable(3, 'store-inv')" style="cursor: pointer">Units Sold</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {% for item in storeItems %}
-                          <tr>
-                            <td>{{ item.storeId.store_id }}</td>
-                            <td>{{ item.rawMaterial_id.rawMaterial_name }}</td>
-                            <td>{{ item.unitsAvailable}}</td>
-                            <td>{{ item.unitsSold }}</td>
-                          </tr>
-                        {% endfor %}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
                 </div>
-              </div>
+            </div>
         </div>
         <script>
-            function myFunction() {
-                document.getElementById("accept").disabled = true;
-                document.getElementById('truckSelect').disabled = false;
-                var submitButton = document.createElement('button');
-                submitButton.name = 'Action';
-                submitButton.type = 'submit';
-                submitButton.value = 'Accepted';
-                submitButton.className = "btn btn-outline-success";
-                submitButton.appendChild(document.createTextNode('Confirm'));
-                document.getElementById('requestForm').appendChild(submitButton);
+            requestList = new Object();
+            {% for key, item in requestValidation.items %}
+                requestList[{{ key }}] = '{{ item }}';
+            {% endfor %}
+            function myFunction(requestId) {
+                if (requestList[requestId] === 'True') {
+                    document.getElementById("accept").disabled = true;
+                    document.getElementById('truckSelect').disabled = false;
+                    var submitButton = document.createElement('button');
+                    submitButton.name = 'Action';
+                    submitButton.type = 'submit';
+                    submitButton.value = 'Accepted';
+                    submitButton.className = "btn btn-outline-success";
+                    submitButton.appendChild(document.createTextNode('Confirm'));
+                    document.getElementById('requestForm').appendChild(submitButton);
+                } else {
+                    alert("Not Enough Units Available!");
+                }
             }
+
             function getTruckId() {
                 document.getElementById('truckId').value = document.getElementById('truckSelect').value;
                 return true;
@@ -133,101 +157,108 @@
         <div class="row">
             <div class="col-md-12 grid-margin">
                 <div class="card">
-                  <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                      <h4>Requests</h4>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <h4>Requests</h4>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Requested Store</th>
+                                    <th>From</th>
+                                    <th>Raw Material</th>
+                                    <th>Units Requested</th>
+                                    <th>Status</th>
+                                    <th>Transport</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for itemRequest in requests %}
+                                    <tr id="TransportValue">
+                                        <td>{{ itemRequest.store_id.store_name }}</td>
+                                        <td>{{ itemRequest.fromStore_id.store_name }}</td>
+                                        <td>{{ itemRequest.rawMaterial_id.rawMaterial_name }}</td>
+                                        <td>{{ itemRequest.units }}</td>
+                                        {% if itemRequest.status == 'Pending' %}
+                                            <td>
+                                                <form id='requestForm' method="post" action="/warehouse_management"
+                                                      onsubmit="getTruckId()">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="request_id"
+                                                           value="{{ itemRequest.request_id }}">
+                                                    <button type="button" id="accept"
+                                                            onclick="myFunction({{ itemRequest.request_id }})"
+                                                            class="btn btn-outline-success">Accept
+                                                    </button>
+                                                    <button type="submit" name="Action" value="Rejected"
+                                                            class="btn btn-outline-danger">Reject
+                                                    </button>
+                                                    <input id='truckId' type="hidden" name="truck_id">
+                                                </form>
+                                            </td>
+                                            <td>
+                                                <select id='truckSelect' class="form-control" disabled>
+                                                    {% for truck in trucks %}
+                                                        <option value="{{ truck.truck_id }}"> {{ truck.truck_owner }} </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </td>
+                                        {% elif itemRequest.status == 'Accepted' %}
+                                            <td><label class="badge badge-success">Completed</label></td>
+                                            <td>{{ itemRequest.truck.truck_owner }}</td>
+                                        {% else %}
+                                            <td><label class="badge badge-danger">Rejected</label></td>
+                                            <td></td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <div class="table-responsive">
-                      <table class="table table-striped table-hover">
-                        <thead>
-                          <tr>
-                            <th>Requested Store</th>
-                            <th>From</th>
-                            <th>Raw Material</th>
-                            <th>Units Requested</th>
-                            <th>Status</th>
-                            <th>Transport</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {% for itemRequest in requests %}
-                          <tr id="TransportValue">
-                            <td>{{ itemRequest.store_id.store_name }}</td>
-                            <td>{{ itemRequest.fromStore_id.store_name }}</td>
-                            <td>{{ itemRequest.rawMaterial_id.rawMaterial_name }}</td>
-                            <td>{{ itemRequest.units }}</td>
-                            {% if itemRequest.status == 'Pending' %}
-                                    <td>
-                                    <form id='requestForm' method="post" action="/warehouse_management" onsubmit="getTruckId()">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="request_id" value="{{ itemRequest.request_id }}">
-                                        <button type="button" id="accept" onclick="myFunction()" class="btn btn-outline-success">Accept</button>
-                                        <button type="submit" name="Action" value="Rejected" class="btn btn-outline-danger">Reject</button>
-                                        <input id='truckId' type="hidden" name="truck_id">
-                                    </form>
-                                    </td>
-                                    <td>
-                                        <select id='truckSelect' class="form-control" disabled>
-                                        {% for truck in trucks %}
-                                            <option value="{{ truck.truck_id }}"> {{ truck.truck_owner }} </option>
-                                        {% endfor %}
-                                        </select>
-                                    </td>
-                            {% elif itemRequest.status == 'Accepted' %}
-                                <td><label class="badge badge-success">Completed</label></td>
-                                <td>{{ itemRequest.truck.truck_owner }}</td>
-                            {% else %}
-                                <td><label class="badge badge-danger">Rejected</label></td>
-                                <td></td>
-                            {% endif %}
-                          </tr>
-                        {% endfor %}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
                 </div>
-              </div>
+            </div>
             {% if shopMenu %}
                 <div class="col-12 grid-margin">
-                <div class="card">
-                  <div class="card-body">
-                    <h4 class="card-title">Sales</h4>
-                    <form class="form-sample" action="/storeDetails" method="post" name="myform">
-                      {% csrf_token %}
-                      <input type="hidden" name="store_id" value={{ store.store_id }}>
-                      <p class="card-description"> Shopping Menu </p>
-                      <div class="row">
-                        <div class="col-md-6">
-                          <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Item</label>
-                            <div class="col-sm-9">
-                              <select class="form-control" name="rawMaterial_id">
-                              {% for item in items %}
-                                <option value="{{ item.rawMaterial_id.rawMaterial_id }}"> {{ item.rawMaterial_id.rawMaterial_name }} </option>
-                              {% endfor %}
-                              </select>
-                            </div>
-                          </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">Sales</h4>
+                            <form class="form-sample" action="/storeDetails" method="post" name="myform">
+                                {% csrf_token %}
+                                <input type="hidden" name="store_id" value={{ store.store_id }}>
+                                <p class="card-description"> Shopping Menu </p>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group row">
+                                            <label class="col-sm-3 col-form-label">Item</label>
+                                            <div class="col-sm-9">
+                                                <select class="form-control" name="rawMaterial_id">
+                                                    {% for item in items %}
+                                                        <option value="{{ item.rawMaterial_id.rawMaterial_id }}"> {{ item.rawMaterial_id.rawMaterial_name }} </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group row">
+                                            <label class="col-sm-3 col-form-label">Units</label>
+                                            <div class="col-sm-9">
+                                                <input class="form-control" name="units">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <input type="hidden" name="unitsAvailable" value="{{ item }}">
+                                    <button type="submit" class="btn btn-success mr-2">Submit</button>
+                                </div>
+                            </form>
                         </div>
-                        <div class="col-md-6">
-                          <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Units</label>
-                            <div class="col-sm-9">
-                              <input class="form-control" name="units">
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div>
-                          <input type="hidden" name="unitsAvailable" value="{{ item }}">
-                          <button type="submit" class="btn btn-success mr-2">Submit</button>
-                      </div>
-                    </form>
-                  </div>
+                    </div>
                 </div>
-              </div>
             {% endif %}
-          </div>
+        </div>
     {% endautoescape %}
 {% endblock content %}

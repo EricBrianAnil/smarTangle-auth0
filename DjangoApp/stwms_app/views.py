@@ -78,20 +78,20 @@ def store_details(request):
         item_sold = units
         item.unitsAvailable = item.unitsAvailable - item_sold
         item.unitsSold = item.unitsSold + item_sold
-        item.save()
 
         data = "%s,store=%s units=%s" % (
             RawMaterials.objects.get(rawMaterial_id=raw_material_id).rawMaterial_name,
             store_id,
             str(units)
         )
-        write_api.write(bucket, org, data)
 
         transaction = TransactionHistory(
             storeId=StoreDetails.objects.get(store_id=store_id),
             rawMaterial_id=RawMaterials.objects.get(rawMaterial_id=raw_material_id),
             units=units
         )
+        write_api.write(bucket, org, data)
+        item.save()
         transaction.save()
     else:
         store_id = request.GET['store_id']
@@ -170,6 +170,7 @@ def w_manage(request):
             else:
                 rm_request.status = 'Rejected'
             rm_request.save()
+
         context = {
             'warehouseItems': StoreInventory.objects.filter(storeId='W'),
             'storeItems': StoreInventory.objects.exclude(storeId='W'),
@@ -177,9 +178,18 @@ def w_manage(request):
             'requests': RawMaterialRequest.objects.all(),
             'inventory': StoreInventory.objects,
             'trucks': TruckDetails.objects.all(),
-            'logs': LogEntry.objects.all()
+            'logs': LogEntry.objects.all(),
+            'requestValidation': dict()
         }
+
+        for rawMaterialRequest in RawMaterialRequest.objects.filter(status='Pending'):
+            fromStoreUnits = StoreInventory.objects.get(rawMaterial_id=rawMaterialRequest.rawMaterial_id,
+                                                        storeId=rawMaterialRequest.fromStore_id).unitsAvailable
+            toStoreUnits = rawMaterialRequest.units
+            print(fromStoreUnits, toStoreUnits)
+            context['requestValidation'][rawMaterialRequest.request_id] = ((fromStoreUnits - toStoreUnits) > 0)
         context['logsLen'] = len(context['logs'])
+        print(context['requestValidation'])
         return render(request, 'warehouseManagement.html', context)
 
 
@@ -266,30 +276,38 @@ def procurement(request):
 def forecast(request):
     context = {
         'rawMaterials': RawMaterials.objects.all(),
-        'post': False
+        'post': False,
+        'pageTitle': 'Forecast'
     }
     if request.method == "POST":
         context['post'] = True
         context['forecast'] = {}
         rawMaterial = RawMaterials.objects.get(rawMaterial_id=request.POST['rawMaterial_id'])
+        context['pageTitle'] = rawMaterial.rawMaterial_name
         forecastPeriod = int(request.POST['forecastPeriod'])
-        storesList = StoreDetails.objects.filter(store_id='S1')
+        storesList = StoreDetails.objects.exclude(store_id='W')
         for store in storesList:
-            model = tsModel(rawMaterial.rawMaterial_id, store.store_id, forecastPeriod)
-            partForecast, fullForecast, yhat = model.fb_prophet()
-            context['forecast'][store] = {
-                'partforecast': partForecast.drop(
-                    ['additive_terms', 'additive_terms_lower', 'additive_terms_upper', 'multiplicative_terms', 'multiplicative_terms_lower', 'multiplicative_terms_upper'],
-                    axis=1
-                ),
-                'fullForecast': fullForecast,
-                'yhat': yhat
-            }
+            try:
+                model = tsModel(rawMaterial.rawMaterial_id, store.store_id, forecastPeriod)
+                if len(TransactionHistory.objects.filter(storeId=store, rawMaterial_id=rawMaterial)) < 2:
+                    continue
+                partForecast, fullForecast, yhat = model.fb_prophet()
+                context['forecast'][store] = {
+                    'partforecast': partForecast.drop(
+                        [
+                            'additive_terms', 'additive_terms_lower', 'additive_terms_upper',
+                            'multiplicative_terms', 'multiplicative_terms_lower', 'multiplicative_terms_upper'
+                        ], axis=1
+                    ),
+                    'fullForecast': fullForecast,
+                    'yhat': yhat
+                }
+            except RuntimeError:
+                pass
         try:
             context['labels'] = partForecast.ds.values
         except NameError:
             pass
-        print(context['labels'])
     return render(request, 'forecastDetails.html', context)
 
 
