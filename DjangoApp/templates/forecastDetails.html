@@ -181,8 +181,12 @@
                                     <table class="table table-hover">
                                         <thead>
                                         <tr>
+                                            <th>Date Time</th>
+                                            <th>Units(yhat)</th>
                                             {% for data in value.partforecast %}
-                                                <th>{{ data }}</th>
+                                                {% if data != 'ds' and data != 'yhat' %}
+                                                    <th>{{ data }}</th>
+                                                {% endif %}
                                             {% endfor %}
                                         </tr>
                                         </thead>

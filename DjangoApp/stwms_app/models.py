@@ -80,7 +80,12 @@ class TransactionHistory(models.Model):
     objects = DataFrameManager()
 
     def __str__(self):
-        return '%s : %s : %d' % (self.storeId.store_id, self.rawMaterial_id.rawMaterial_name, self.units)
+        return '%s : %s : %d at %s' % (
+            self.storeId.store_id,
+            self.rawMaterial_id.rawMaterial_name,
+            self.units,
+            self.dateTime.strftime("%d %b,%Y - %-I:%M %p")
+        )
 
     class Meta:
         verbose_name_plural = "Transaction History"

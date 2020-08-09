@@ -10,14 +10,16 @@ class TimeSeriesModel:
         self.df = ''
         self.prediction_size = future_period
         self.error_log = {}
+        self.partForecast = ''
+        self.labels = []
         self.get_data(raw_material_id, store_id)
-        self.data_clean()
+        self.pre_data_clean()
 
     def get_data(self, raw_material_id, store_id):
         self.df = TransactionHistory.objects.filter(rawMaterial_id_id=raw_material_id, storeId_id=store_id) \
             .to_dataframe()
 
-    def data_clean(self, with_time=False):
+    def pre_data_clean(self, with_time=False):
         raw_df = self.df
         if with_time:
             raw_df['dateTime'] = pd.to_datetime(df['dateTime']).dt.tz_convert('Asia/Kolkata').dt.tz_localize(None)
@@ -34,13 +36,26 @@ class TimeSeriesModel:
         plt.ylabel('Quantity')
         plt.show()
 
+    def post_data_clean(self):
+        self.partForecast['ds'] = pd.to_datetime(self.partForecast['ds']).dt.strftime('%d %b')
+        self.partForecast = self.partForecast.drop([
+            'additive_terms', 'additive_terms_lower', 'additive_terms_upper',
+            'multiplicative_terms', 'multiplicative_terms_lower', 'multiplicative_terms_upper'
+        ], axis=1)
+        self.labels = self.partForecast.ds.values
+        self.partForecast = self.partForecast.round(2)
+        indexList = list(self.partForecast.columns)
+        ele = indexList.pop(-1)
+        indexList.insert(1, ele)
+        self.partForecast = self.partForecast[indexList]
+
     def fb_prophet(self, plot=False):
         fbP_model = Prophet(n_changepoints=2)
         fbP_model.fit(self.df)
         future = fbP_model.make_future_dataframe(periods=self.prediction_size, freq="D", include_history=False)
         forecast = fbP_model.predict(future)
 
-        partForecast = forecast[-self.prediction_size:]
+        self.partForecast = forecast[-self.prediction_size:]
         y_hat = forecast['yhat'][-self.prediction_size:]
         y_hat.reset_index(drop=True, inplace=True)
 
@@ -50,10 +65,10 @@ class TimeSeriesModel:
             plt.plot(self.df['ds'], self.df['y'], color='red')
             plt.show()
 
-        partForecast['ds'] = pd.to_datetime(partForecast['ds']).dt.strftime('%d %b')
-        return partForecast, forecast, y_hat
+        self.post_data_clean()
+        return self.partForecast, forecast, y_hat, self.labels
 
 
-if '__name__' == '__main__':
+if __name__ == '__main__':
     model = TimeSeriesModel('101', 'S1', 7)
     model.fb_prophet(plot=True)

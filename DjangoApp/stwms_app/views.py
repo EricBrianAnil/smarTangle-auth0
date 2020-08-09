@@ -291,21 +291,16 @@ def forecast(request):
                 model = tsModel(rawMaterial.rawMaterial_id, store.store_id, forecastPeriod)
                 if len(TransactionHistory.objects.filter(storeId=store, rawMaterial_id=rawMaterial)) < 2:
                     continue
-                partForecast, fullForecast, yhat = model.fb_prophet()
+                partForecast, fullForecast, yhat, labels = model.fb_prophet()
                 context['forecast'][store] = {
-                    'partforecast': partForecast.drop(
-                        [
-                            'additive_terms', 'additive_terms_lower', 'additive_terms_upper',
-                            'multiplicative_terms', 'multiplicative_terms_lower', 'multiplicative_terms_upper'
-                        ], axis=1
-                    ),
+                    'partforecast': partForecast,
                     'fullForecast': fullForecast,
                     'yhat': yhat
                 }
             except RuntimeError:
                 pass
         try:
-            context['labels'] = partForecast.ds.values
+            context['labels'] = labels
         except NameError:
             pass
     return render(request, 'forecastDetails.html', context)
