@@ -1,5 +1,5 @@
 class Common {
-  static String baseURL = "http://ec2-3-211-204-194.compute-1.amazonaws.com/";
+  static String baseURL = "http://ec2-3-211-32-9.compute-1.amazonaws.com/";
   static String currentUser = "smarTangle";
   static Map<String, String> rList  = {
     '101' : 'Carrot',

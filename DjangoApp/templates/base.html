@@ -127,7 +127,8 @@
     <div class="container-fluid page-body-wrapper">
         <!-- partial:partials/_sidebar.html -->
         <nav class="sidebar sidebar-offcanvas" id="sidebar">
-            <ul class="nav">
+            <div class="sidebar" style="position: fixed; background: linear-gradient(to top, #01183e, #061e7b);">
+                <ul class="nav">
                 <li class="nav-item nav-profile">
                     <a href="#" class="nav-link">
                         <div class="text-wrapper">
@@ -136,14 +137,22 @@
                         </div>
                     </a>
                 </li>
+                {% if backButton %}
+                    <li class="nav-item" style="background-color: #0067b3">
+                        <a class="nav-link" href="/{{ backButtonLink }}">
+                            <i class="menu-icon typcn typcn-document-text"></i>
+                            <span class="menu-title">Go Back</span>
+                        </a>
+                    </li>
+                {% endif %}
                 <li class="nav-item nav-category">Main Menu</li>
                 <li class="nav-item">
                     <a class="nav-link" href="/stores">
                         <i class="menu-icon typcn typcn-document-text"></i>
-                        <span class="menu-title">Dashboard</span>
+                        <span class="menu-title">Stores</span>
                     </a>
                 </li>
-                {% if request.user.username == 'admin_ibm' %}
+                {% if request.user.email == "rs4rossgeller@gmail.com" %}
                     <li class="nav-item">
                         <a class="nav-link" href="/warehouse_management">
                             <i class="menu-icon typcn typcn-document-text"></i>
@@ -164,13 +173,14 @@
                     </li>
                 {% endif %}
                 <li class="nav-item">
-                    <a class="nav-link" href="/accounts/logout">
+                    <a class="nav-link" href="/logout">
                         <i class="menu-icon typcn typcn-document-text"></i>
                         <span class="menu-title">Sign out</span>
                     </a>
                 </li>
                 </li>
             </ul>
+            </div>
         </nav>
         <!-- partial -->
         <div class="main-panel">

@@ -25,9 +25,9 @@ STATIC_DIR = os.path.join(BASE_DIR, 'static')
 SECRET_KEY = '44@rr&&5@&^ly-k4q(%t!!3ptsm^brzm4#2(p1+jh5@_mpmh06'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', 'ec2-3-211-204-194.compute-1.amazonaws.com', '3.211.204.194']
+ALLOWED_HOSTS = ['smartangle.ddns.net', '127.0.0.1', 'ec2-3-211-32-9.compute-1.amazonaws.com', '3.211.32.9', '0.0.0.0']
 
 
 # Application definition
@@ -40,7 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'stwms_app', 
-    'rest_framework'
+    'rest_framework',
+    'auth0login',
+    'social_django',
 ]
 
 MIDDLEWARE = [
@@ -73,6 +75,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'stwms_django.wsgi.application'
 
+
+AUTHENTICATION_BACKENDS = {
+    'auth0login.auth0backend.Auth0',
+    'django.contrib.auth.backends.ModelBackend'
+}
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
@@ -127,6 +134,21 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [STATIC_DIR]
-LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = 'home'
+# LOGIN_URL = '/accounts/login/'
+# LOGIN_REDIRECT_URL = 'home'
+LOGIN_URL = '/login/auth0'
+LOGIN_REDIRECT_URL = '/stores'
 LOGOUT_REDIRECT_URL = '/'
+
+SOCIAL_AUTH_TRAILING_SLASH = False  # Remove trailing slash from routes
+SOCIAL_AUTH_AUTH0_DOMAIN = 'smartangle.us.auth0.com'
+SOCIAL_AUTH_AUTH0_KEY = 'NffXcqJ9120SX2kadXNxpooVUdZG53v4'
+SOCIAL_AUTH_AUTH0_SECRET = 'ZDIBwkQPJ9BzxKTfboVukYHoXKg9wW6Aqrnh5_HmAS4yFrZ-bo2P2aIFsL8ys2-h'
+
+SOCIAL_AUTH_AUTH0_SCOPE = [
+    'openid',
+    'profile',
+    'email'
+]
+
+ADMIN_EMAIL = 'rs4rossgeller@gmail.com'

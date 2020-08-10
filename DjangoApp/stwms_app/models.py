@@ -52,6 +52,15 @@ class RawMaterialBatches(models.Model):
     dateTime = models.DateTimeField(auto_now_add=True)
     hash = models.CharField(max_length=100)
 
+    def __str__(self):
+        return ('%d : %s : %d : %s => %4.2f')%(
+            self.uniqueBatch_id,
+            self.rawMaterial_id.rawMaterial_name,
+            self.units,
+            self.supplier.supplier_name,
+            self.quality_score
+        )
+
     class Meta:
         verbose_name_plural = "Raw Material Batches"
 

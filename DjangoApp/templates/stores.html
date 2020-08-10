@@ -26,8 +26,8 @@
         </div>
         <div class="row">
             {% for store in stores %}
-                <div class="{% if request.user == store.storeManager %} col-md-8 {% else %} col-md-4 {% endif %} grid-margin stretch-card">
-                    <div class="card" {% if request.user == store.storeManager %}
+                <div class="{% if request.user.email == store.storeManager.email %} col-md-8 {% else %} col-md-4 {% endif %} grid-margin stretch-card">
+                    <div class="card" {% if request.user.email == store.storeManager.email %}
                          style="border-color: #3453F0; border-width: 5px" {% endif %}>
                         <form action="/storeDetails" method="get">
                             <div class="card-body">

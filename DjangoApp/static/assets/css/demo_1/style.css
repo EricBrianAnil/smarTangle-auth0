@@ -269,7 +269,7 @@
     -webkit-transition: width 0.25s ease, background 0.25s ease;
     -moz-transition: width 0.25s ease, background 0.25s ease;
     -ms-transition: width 0.25s ease, background 0.25s ease;
-    background: #1c45ef;
+    background: #061e7b;
     width: 270px;
     height: 63px; }
     .navbar.default-layout .navbar-brand-wrapper .navbar-brand {
@@ -403,8 +403,8 @@
 /* Sidebar */
 .sidebar {
   min-height: calc(100vh - 63px);
-  background: -webkit-gradient(linear, left bottom, left top, from(#5768f3), to(#1c45ef));
-  background: linear-gradient(to top, #5768f3, #1c45ef);
+  background: -webkit-gradient(linear, left bottom, left top, from(#01183e), to(#061e7b));
+  background: linear-gradient(to top, #01183e, #061e7b);
   font-family: "roboto", sans-serif;
   padding: 0;
   width: 270px;
@@ -414,7 +414,7 @@
   -moz-transition: width 0.25s ease, background 0.25s ease;
   -ms-transition: width 0.25s ease, background 0.25s ease; }
   .sidebar > .nav {
-    overflow: hidden;
+    overflow: auto;
     -ms-flex-wrap: nowrap;
     flex-wrap: nowrap;
     -webkit-box-orient: vertical;

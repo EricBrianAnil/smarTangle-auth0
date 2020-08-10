@@ -16,19 +16,52 @@
                                 <i class="mdi mdi-briefcase-check"></i>
                             </div>
                         </div>
-                        <div class="d-flex justify-content-between">
-                            <h5 class="font-weight-semibold mb-0">Batch ID: {{ unique_id }}</h5>
-                            <h5 class="font-weight-semibold mb-0">Raw
-                                Material: {{ raw_material_id.rawMaterial_name }}</h5>
-                            <h5 class="font-weight-semibold mb-0">Supplier: {{ supplier_id.supplier_name }}</h5>
-                            <h5 class="font-weight-semibold mb-0">Units: {{ units }}</h5>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <h5 class="font-weight-semibold mb-0">Quality Score: {{ quality_score }}</h5>
-                            <h5 class="font-weight-semibold mb-0">Calories: {{ calories }}</h5>
-                            <h5 class="font-weight-semibold mb-0">Proteins: {{ proteins }}</h5>
-                            <h5 class="font-weight-semibold mb-0">Fat: {{ fat }}</h5>
-                            <h5 class="font-weight-semibold mb-0">Sodium: {{ sodium }}</h5>
+                        <span></span>
+                        <div class="table-responsive" style="background-color: white; box-shadow: black; border-radius: 10px;">
+                            <table class="table">
+                            <tbody>
+                                <tr>
+                                    <td>Tangle Hash</td>
+                                    <td><a href="https://comnet.thetangle.org/transaction/{{ hash }}" target='_blank'>{{ hash }}</a></td>
+                                </tr>
+                                <tr>
+                                    <td>Batch ID</td>
+                                    <td>{{ unique_id }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Raw Material</td>
+                                    <td>{{ raw_material_id.rawMaterial_name }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Supplier</td>
+                                    <td>{{ supplier_id.supplier_name }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Units</td>
+                                    <td>{{ units }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Quality Score</td>
+                                    <td>{{ quality_score }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Calories</td>
+                                    <td>{{ calories }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Proteins</td>
+                                    <td>{{ proteins }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Fat</td>
+                                    <td>{{ fat }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Sodium</td>
+                                    <td>{{ sodium }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                         </div>
                     </div>
                 </div>

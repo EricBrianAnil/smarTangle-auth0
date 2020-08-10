@@ -18,6 +18,11 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', include("auth0login.urls")),
     path('', include("stwms_app.urls")),
-    path('accounts/', include('django.contrib.auth.urls')),
-] 
+    path('', include('django.contrib.auth.urls')),
+    path('', include('social_django.urls')),
+]
+
+handler404 = 'stwms_app.views.handler404'
+handler500 = 'stwms_app.views.handler404'
