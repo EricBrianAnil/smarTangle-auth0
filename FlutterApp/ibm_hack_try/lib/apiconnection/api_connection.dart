@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:ibm_hack_try/models/api_model.dart';
 
-final _base = "http://ec2-52-91-123-133.compute-1.amazonaws.com";
+import '../global.dart';
+
+//final _base = "http://ec2-52-91-123-133.compute-1.amazonaws.com";
 final _tokenEndpoint = "/api-token-auth/";
-final _tokenURL = _base + _tokenEndpoint;
+final _tokenURL = Common.baseURL + _tokenEndpoint;
 
 Future<Token> getToken(UserLogin userLogin) async {
   print(_tokenURL);

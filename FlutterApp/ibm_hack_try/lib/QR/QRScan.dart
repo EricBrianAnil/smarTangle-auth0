@@ -50,7 +50,7 @@ class _ScanResultState extends State<ScanResult> {
             MaterialPageRoute(
               builder: (context) => QRPage()));},
           color: Colors.blue),
-        SizedBox(width:50),
+        SizedBox(width:100),
         IconButton(
           icon: Icon(Icons.card_travel), 
           onPressed: (){
@@ -58,9 +58,7 @@ class _ScanResultState extends State<ScanResult> {
             MaterialPageRoute(
               builder: (context) => HomePage()));},
           color: Colors.black),
-        SizedBox(width:50),
-        IconButton(icon: Icon(Icons.person), onPressed: null, color: Colors.black),
-        SizedBox(width:50),
+        SizedBox(width:100),
         IconButton(
           icon: Icon(Icons.settings), 
           onPressed: (){
@@ -225,6 +223,16 @@ class _ScanResultState extends State<ScanResult> {
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
+          IconButton(
+            icon: Icon(Icons.arrow_back), 
+            color: Colors.white, 
+            iconSize: 30.0, 
+            onPressed: (){
+              Navigator.push(context,
+                MaterialPageRoute(builder: (context) => QRPage()));
+            }
+          ),
+          SizedBox(width: 60.0),
           Image.asset(
           'images/logo_title.png',
           height: 65,

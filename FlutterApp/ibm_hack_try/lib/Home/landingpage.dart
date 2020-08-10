@@ -1,8 +1,13 @@
+import 'dart:convert';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:ibm_hack_try/Home/search_service.dart';
 import 'package:ibm_hack_try/QR/QRPage.dart';
+import 'package:ibm_hack_try/Utility/Availability/material.dart';
 import 'package:ibm_hack_try/Utility/utilitypage.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+
+import '../global.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -12,6 +17,23 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   double screenHeight;
   var scaffoldKey = GlobalKey<ScaffoldState>();
+
+  List<dynamic> searchResults = [];
+  List<dynamic> details = [] ; 
+
+  searchDjango(value) async {
+    SearchService.searchDjangoApi(value).then((responseBody) {
+      List<dynamic> data = jsonDecode(responseBody);
+      setState(() {
+        data.forEach((value) {
+          searchResults.add(value);
+        });
+      });
+      print(data.runtimeType.toString());
+      //print(searchResults.runtimeType.toString());
+    });
+  }
+
   CarouselSlider carouselSlider;
   int _current = 0;
   List imgList = [
@@ -41,7 +63,7 @@ class _HomePageState extends State<HomePage> {
               color: const Color(0xff3B5EE6),
             ),
             accountName: new Text(
-              "USER",
+              Common.currentUser,
               style: new TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0),
             ),
             currentAccountPicture: CircleAvatar(
@@ -76,9 +98,9 @@ class _HomePageState extends State<HomePage> {
             sales(context),
             Positioned(
               left: 10,
-              top: 20,
+              top: 40,
               child: IconButton(
-                icon: Icon(Icons.menu),
+                icon: Icon(Icons.menu, color: Colors.white, size: 40),
                 onPressed: () => scaffoldKey.currentState.openDrawer(),
               ),
             ),
@@ -94,7 +116,7 @@ class _HomePageState extends State<HomePage> {
             MaterialPageRoute(
               builder: (context) => QRPage()));},
           color: Colors.black),
-        SizedBox(width:50),
+        SizedBox(width:100),
         IconButton(
           icon: Icon(Icons.card_travel), 
           onPressed: (){
@@ -102,9 +124,7 @@ class _HomePageState extends State<HomePage> {
             MaterialPageRoute(
               builder: (context) => HomePage()));},
           color: Colors.blue),
-        SizedBox(width:50),
-        IconButton(icon: Icon(Icons.person), onPressed: null, color: Colors.black),
-        SizedBox(width:50),
+        SizedBox(width:100),
         IconButton(
           icon: Icon(Icons.settings), 
           onPressed: (){
@@ -135,27 +155,60 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget search(BuildContext context) {
-    return Column(
+    return ListView(
+      shrinkWrap: true,
       children: <Widget>[
-      Container(
-        margin: EdgeInsets.only(top: screenHeight / 5),
-        padding: EdgeInsets.only(left: 15, right: 15),
-        
-        child: TextField(
-          onChanged: (value) {},
-          decoration: InputDecoration(
+        Padding(
+          padding: EdgeInsets.only(left: 5, right: 5, top: (screenHeight / 5) - 20  ),
+          //padding: const EdgeInsets.all(10.0),
+          child: TextField(
+            onChanged: (val) {
+              searchResults.clear();
+              searchDjango(val);
+            },
+            decoration: InputDecoration(
             fillColor: Colors.white,
             filled: true,
-            labelText: "Search",
+            //labelText: "Search",
             hintText: "Search",
-            suffixIcon: Icon(Icons.search, color: Colors.black,),
+            suffixIcon: IconButton(icon: Icon(Icons.search), color: Colors.black, onPressed: () {}, ),
             border: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(25.0)))),
+          ),
         ),
-      ),
+        //SizedBox(height: 10.0,),
+        ListView.builder(
+          shrinkWrap: true,
+          itemCount: searchResults.length,
+          itemBuilder: (BuildContext context, int index) {
+            return buildResultCard(searchResults[index]);
+          },
+        ),
       ],
     ); 
   } 
+
+  Widget buildResultCard(data) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        children: <Widget>[
+          ListTile(
+            title: FlatButton(child: 
+              Text(Common.rList[data['rawMaterial_id']]), 
+              onPressed: null
+              // () {
+              //   Navigator.push(context, 
+              //   MaterialPageRoute(builder: (context) => Availability(item: data['rawMaterial_name'],)));  
+              // },
+            ),
+            subtitle: Text(data['rawMaterial_id']),
+          ),
+        //Divider(color: Colors.black)
+      ],
+    ),
+  );
+}
 
   Widget offer(BuildContext context) {
     return Container(
@@ -246,8 +299,10 @@ class _HomePageState extends State<HomePage> {
               children: <Widget>[
               Menu(title:"Apple", rate: '  Rs 60/kg  '),
               Menu(title:"Carrot", rate: '  Rs 50/kg  '),
-              Menu(title:"Grapes", rate: '  Rs 70/kg  '),
+              Menu(title:"Lettuce", rate: '  Rs 70/kg  '),
               Menu(title:"Banana", rate: '  Rs 80/kg  '),
+              Menu(title:"Brinjal", rate: '  Rs 70/kg  '),
+              Menu(title:"Onion", rate: '  Rs 80/kg  '),
           ]  
       ),
       
@@ -270,18 +325,23 @@ class Menu extends StatelessWidget {
         side: BorderSide(color: Color(0xff3B5EE6), style: BorderStyle.solid, width:1.5),
         borderRadius: BorderRadius.circular(10),
       ),
-      child: Column(
+      child: RaisedButton(
+        color: Colors.blue[50],
+        onPressed:(){
+          Navigator.push(context, MaterialPageRoute(builder: (context) => Availability(item: this.title)));
+         },
+        child: Column(
         children: <Widget>[
           SizedBox(height:10.0),
           Align(
             alignment: Alignment.topCenter,
             child: Image.asset(
               'images/'+ title +'.png',
-              height: 90,
-              width: 90,
+              height: 100,
+              width: 100,
             ),
           ),
-          SizedBox(height:20.0),
+          SizedBox(height:10.0),
           Align(
             alignment: Alignment.bottomRight,
             child: Text(rate, 
@@ -293,7 +353,8 @@ class Menu extends StatelessWidget {
             ), 
           )
         ]
-      )
+      ))
     );
   }
 }
+

@@ -3,6 +3,7 @@ import 'package:ibm_hack_try/Home/landingpage.dart';
 import 'package:ibm_hack_try/QR/QRPage.dart';
 import 'package:ibm_hack_try/Utility/Request/Requests.dart';
 import 'package:ibm_hack_try/Utility/ShoppingCart/shopping.dart';
+import 'package:ibm_hack_try/Utility/Stores/gmap.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 
@@ -20,15 +21,16 @@ class _UtilityPageState extends State<UtilityPage> {
   Widget build(BuildContext context) {
     screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Stack(
+      body: 
+      //SingleChildScrollView( child: 
+      Stack(
           children: <Widget>[
             upperHalf(context),
             name(context),
             option(context),
           ],
         ),
-      ),
+      
       
       bottomNavigationBar: Row(children: <Widget>[
         IconButton(
@@ -38,7 +40,7 @@ class _UtilityPageState extends State<UtilityPage> {
             MaterialPageRoute(
               builder: (context) => QRPage()));},
               color: Colors.black),
-        SizedBox(width:50),
+        SizedBox(width:100),
         IconButton(
           icon: Icon(Icons.card_travel), 
           onPressed: (){
@@ -46,9 +48,7 @@ class _UtilityPageState extends State<UtilityPage> {
             MaterialPageRoute(
               builder: (context) => HomePage()));},
               color: Colors.black),
-        SizedBox(width:50),
-        IconButton(icon: Icon(Icons.person), onPressed: null, color: Colors.black),
-        SizedBox(width:50),
+        SizedBox(width: 100),
         IconButton(
           icon: Icon(Icons.settings), 
           onPressed: (){
@@ -67,7 +67,14 @@ class _UtilityPageState extends State<UtilityPage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          IconButton(icon: Icon(Icons.arrow_back), color: Colors.blue[800], iconSize: 30.0, onPressed: null),
+          IconButton(
+            icon: Icon(Icons.arrow_back), 
+            color: Colors.blue[800], iconSize: 30.0, 
+            onPressed: (){
+              Navigator.push(context,
+              MaterialPageRoute(builder: (context) => HomePage()));
+            }
+          ),
           SizedBox(width: 60.0),
           Image.asset(
           'images/logo_blue.png', height: 65, width: 130,
@@ -123,33 +130,15 @@ class _UtilityPageState extends State<UtilityPage> {
       padding: EdgeInsets.only(left: 10 , right: 10),  
       child: Column(
         children: <Widget>[
-        Container(
-          width: 322.0, height: 79.0,
-          child: RaisedButton(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0),),
-            color: const Color(0xffdd377b),
-            onPressed: (){},
-            child:Text(
-                'Material Availability',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontSize: 21,
-                  color: const Color(0xffffffff),
-                  letterSpacing: 2.0580000000000003,
-                  fontWeight: FontWeight.w700,
-                ),
-            textAlign: TextAlign.center,),
-        ),
-         decoration: BoxDecoration(boxShadow: [BoxShadow(color: const Color(0x52d53499),
-           offset: Offset(0, 5),
-           blurRadius: 10,)]), ),
         SizedBox(height: 10),
         Container(
           width: 322.0, height: 121.0,
           child: RaisedButton(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0),),
             color: const Color(0xffdd377b),
-            onPressed: (){},
+            onPressed: (){
+                  Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => GMap()));},
             padding: EdgeInsets.only( right:140, top:45.0),
             child: Text("Find Nearby\nStores",style: TextStyle(fontFamily: 'Montserrat',
               fontSize: 24,

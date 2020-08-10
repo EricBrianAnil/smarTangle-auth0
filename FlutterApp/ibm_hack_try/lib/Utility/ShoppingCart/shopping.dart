@@ -73,7 +73,7 @@ class _ShoppingState extends State<Shopping> {
             MaterialPageRoute(
               builder: (context) => QRPage()));},
               color: Colors.black),
-        SizedBox(width:50),
+        SizedBox(width:100),
         IconButton(
           icon: Icon(Icons.card_travel), 
           onPressed: (){
@@ -81,9 +81,7 @@ class _ShoppingState extends State<Shopping> {
             MaterialPageRoute(
               builder: (context) => HomePage()));},
               color: Colors.black),
-        SizedBox(width:50),
-        IconButton(icon: Icon(Icons.person), onPressed: null, color: Colors.black),
-        SizedBox(width:50),
+        SizedBox(width: 100),
         IconButton(
           icon: Icon(Icons.settings), 
           onPressed: (){
@@ -102,7 +100,15 @@ class _ShoppingState extends State<Shopping> {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          IconButton(icon: Icon(Icons.arrow_back), color: Colors.blue[800], iconSize: 30.0, onPressed: null),
+          IconButton(
+            icon: Icon(Icons.arrow_back), 
+            color: Colors.blue[800], 
+            iconSize: 30.0, 
+            onPressed: (){
+              Navigator.push(context,
+                MaterialPageRoute(builder: (context) => UtilityPage()));
+            }
+          ),
           SizedBox(width: 60.0),
           Image.asset(
           'images/logo_blue.png', height: 65, width: 130,

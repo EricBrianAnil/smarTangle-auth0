@@ -45,9 +45,7 @@ class FirstPage extends StatelessWidget{
   }
 }*/
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-
 import 'package:bloc/bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ibm_hack_try/Database/user_repository.dart';

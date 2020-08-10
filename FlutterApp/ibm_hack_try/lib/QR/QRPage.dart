@@ -46,7 +46,7 @@ class _QRPageState extends State<QRPage> {
             MaterialPageRoute(
               builder: (context) => QRPage()));},
               color: Colors.blue),
-        SizedBox(width:50),
+        SizedBox(width:100),
         IconButton(
           icon: Icon(Icons.card_travel), 
           onPressed: (){
@@ -54,9 +54,7 @@ class _QRPageState extends State<QRPage> {
             MaterialPageRoute(
               builder: (context) => HomePage()));},
               color: Colors.black),
-        SizedBox(width:50),
-        IconButton(icon: Icon(Icons.person), onPressed: null, color: Colors.black),
-        SizedBox(width:50),
+        SizedBox(width:100),
         IconButton(
           icon: Icon(Icons.settings), 
           onPressed: (){

@@ -50,7 +50,7 @@ class TimeSeriesModel:
         self.partForecast = self.partForecast[indexList]
 
     def fb_prophet(self, plot=False):
-        fbP_model = Prophet(n_changepoints=2)
+        fbP_model = Prophet(weekly_seasonality=True, daily_seasonality=True)
         fbP_model.fit(self.df)
         future = fbP_model.make_future_dataframe(periods=self.prediction_size, freq="D", include_history=False)
         forecast = fbP_model.predict(future)

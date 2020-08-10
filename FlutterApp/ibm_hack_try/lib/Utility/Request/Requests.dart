@@ -29,14 +29,14 @@ class _RequestsState extends State<Requests> {
         child: Stack(
           children: <Widget>[
             upperHalf(context),
+            Padding(
+                  padding: EdgeInsets.only(right: 10.0, left: 10.0, top: screenHeight/3),
+                  child: request(context),
+                ),
             Align(
               alignment: Alignment.center,
               child: Column(children: <Widget>[
                 pageTitle(context),
-                Padding(
-                  padding: EdgeInsets.only(right: 10.0, left: 10.0),
-                  child: request(context),
-                )
               ],),
             )
           ],
@@ -51,7 +51,7 @@ class _RequestsState extends State<Requests> {
             MaterialPageRoute(
               builder: (context) => QRPage()));},
               color: Colors.black),
-        SizedBox(width:50),
+        SizedBox(width:100),
         IconButton(
           icon: Icon(Icons.card_travel), 
           onPressed: (){
@@ -59,9 +59,7 @@ class _RequestsState extends State<Requests> {
             MaterialPageRoute(
               builder: (context) => HomePage()));},
               color: Colors.black),
-        SizedBox(width:50),
-        IconButton(icon: Icon(Icons.person), onPressed: null, color: Colors.black),
-        SizedBox(width:50),
+        SizedBox(width:100),
         IconButton(
           icon: Icon(Icons.settings), 
           onPressed: (){
@@ -81,7 +79,15 @@ class _RequestsState extends State<Requests> {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          IconButton(icon: Icon(Icons.arrow_back), color: Colors.blue[800], iconSize: 30.0, onPressed: null),
+          IconButton(
+            icon: Icon(Icons.arrow_back), 
+            color: Colors.blue[800], 
+            iconSize: 30.0, 
+            onPressed: (){
+              Navigator.push(context,
+                MaterialPageRoute(builder: (context) => UtilityPage()));
+            }
+          ),
           SizedBox(width: 60.0),
           Image.asset(
           'images/logo_blue.png', height: 65, width: 130,

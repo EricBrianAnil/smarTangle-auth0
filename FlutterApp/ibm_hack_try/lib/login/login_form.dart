@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ibm_hack_try/bloc_login/bloc/login_bloc.dart';
 
+import '../global.dart';
+
 
 class LoginForm extends StatefulWidget {
   @override
@@ -21,6 +23,7 @@ class _LoginFormState extends State<LoginForm> {
         username: _usernameController.text,
         password: _passwordController.text,
       ));
+      Common.currentUser = _usernameController.text; 
       
     }
 

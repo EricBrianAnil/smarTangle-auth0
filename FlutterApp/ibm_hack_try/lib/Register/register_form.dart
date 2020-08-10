@@ -6,6 +6,8 @@ import 'package:ibm_hack_try/Database/user_repository.dart';
 import 'package:ibm_hack_try/login/login_page.dart';
 import 'package:ibm_hack_try/models/user_signup.dart';
 
+import '../global.dart';
+
 
 class RegisterForm extends StatefulWidget {
   final Future<NewUser> add;
@@ -22,7 +24,7 @@ class _RegisterFormState extends State<RegisterForm> {
   final _passwordController = TextEditingController();
 
   
-  static final BASE_URL = 'http://ec2-52-91-123-133.compute-1.amazonaws.com';
+  //static final BASE_URL = 'http://ec2-52-91-123-133.compute-1.amazonaws.com';
   
 
   Future<NewUser> createPost(String url, {Map body}) async {
@@ -114,7 +116,7 @@ class _RegisterFormState extends State<RegisterForm> {
                         name: _nameController.text, 
                         psswd: _passwordController.text
                       );
-                      NewUser p = await createPost(BASE_URL,body: newPost.toMap());
+                      NewUser p = await createPost(Common.baseURL, body: newPost.toMap());
                       print(p.user);
                       Navigator.push(
                         context,
