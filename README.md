@@ -1,5 +1,5 @@
 <h1 align="center">smarTangle Warehouse Management System</h1>
-<h3 align="center">Team hackOverflow | Auth0</h3>
+<h3 align="center">Team hackOverflow</h3>
 
 ## About
 A **Tangle** network based SaaS Warehouse Optimization System for a Food Warehouse that covers tracking of the movement, quality and shelf life of the product and also predicts the requirement of raw materials  based on daily demands for a long period using the **FbProphet** Time Series forecasting model. The project consists of a **Django-based web application** as well as a **Flutter based mobile application.**
@@ -9,7 +9,7 @@ In a nutshell, our solution proposal - smarTangle  is a novel system which integ
 
 ### [Check out the Project demo video here!](https://youtu.be/LEVnECEvn_U)
 
-[**Check Our Website out here :)**](http://34.66.58.127/)
+[**Check Our Website out here :)**](http://smartangle.ddns.net/)
 
 ![](/Images/poster1.png)
 
